@@ -49,7 +49,7 @@ class AnneeScolaireRepository
      * @param array $data
      * @return AnneeScolaire|false
      */
-    public function store(array $data)
+    public function store(array $data): false|AnneeScolaire
     {
         $data['libelle'] = $data['annee_debut'] . '-' . $data['annee_fin'];
         $data['statut'] = 'preparee';
@@ -77,19 +77,16 @@ class AnneeScolaireRepository
         if (!$annee) {
             return false;
         }
-
         // Une année ouverte ou clôturée ne doit plus être modifiée.
         if ($annee->statut !== 'preparee') {
             return false;
         }
-
         $data['libelle'] = $data['annee_debut'] . '-' . $data['annee_fin'];
         $annee->fill($data);
 
         if ($annee->save()) {
             return $annee;
         }
-
         return false;
     }
 
@@ -123,8 +120,9 @@ class AnneeScolaireRepository
      *
      * @param int $id
      * @return AnneeScolaire|false
+     * @throws Throwable
      */
-    public function ouvrir(int $id)
+    public function ouvrir(int $id): false|AnneeScolaire
     {
         $annee = AnneeScolaire::whereId($id)->first();
         if (!$annee) {
@@ -136,12 +134,10 @@ class AnneeScolaireRepository
         }
 
         DB::transaction(function () use ($annee) {
-
             // Désactiver toutes les autres années.
             AnneeScolaire::query()->update([
                 'active' => false,
             ]);
-
             // Ouvrir et activer l'année.
             $annee->update([
                 'statut' => 'ouverte',
@@ -175,12 +171,10 @@ class AnneeScolaireRepository
             AnneeScolaire::query()->update([
                 'active' => false,
             ]);
-
             $annee->update([
                 'active' => true,
             ]);
         });
-
         return $annee->fresh();
     }
 
@@ -202,7 +196,6 @@ class AnneeScolaireRepository
             return false;
         }
         DB::transaction(function () use ($annee) {
-
             $annee->update([
                 'statut' => 'cloturee',
                 'active' => false,
@@ -217,7 +210,7 @@ class AnneeScolaireRepository
      *
      * @return AnneeScolaireResource|null
      */
-    public function active()
+    public function active(): ?AnneeScolaireResource
     {
         $annee = AnneeScolaire::where('active', true)->first();
         if (!$annee) {
@@ -234,7 +227,7 @@ class AnneeScolaireRepository
      *
      * @return AnneeScolaire|false
      */
-    public function preparerSuivante()
+    public function preparerSuivante(): false|AnneeScolaire
     {
         $anneeActive = AnneeScolaire::where('active', true)->first();
         if (!$anneeActive) {
@@ -242,10 +235,7 @@ class AnneeScolaireRepository
         }
         $anneeDebut = $anneeActive->annee_fin;
         $anneeFin = $anneeDebut + 1;
-
         $libelle = $anneeDebut . '-' . $anneeFin;
-
-        // Vérifier si elle existe déjà.
         $existante = AnneeScolaire::where('libelle', $libelle)->first();
 
         if ($existante) {
@@ -262,11 +252,9 @@ class AnneeScolaireRepository
             'date_cloture' => null,
             'description' => null,
         ]);
-
         if ($annee->save()) {
             return $annee;
         }
-
         return false;
     }
 }

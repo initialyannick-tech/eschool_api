@@ -1,0 +1,11 @@
+{
+    "name": "Pedagogie",
+    "alias": "pedagogie",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Pedagogie\\Providers\\PedagogieServiceProvider"
+    ],
+    "files": []
+}
