@@ -1,0 +1,18 @@
+<?php
+
+namespace {{ namespace }};
+
+use Modules\Core\Http\Controllers\CoreController;
+use {{ repositoryNamespace }};
+
+class {{ className }} extends CoreController
+{
+    protected $repository;
+
+    public function __construct({{ repositoryClass }} $repository)
+    {
+        $this->repository = $repository;
+    }
+
+    // Ajoute tes méthodes de contrôleur ici
+}
