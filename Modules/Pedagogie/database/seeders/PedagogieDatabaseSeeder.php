@@ -11,6 +11,9 @@ class PedagogieDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
+         $this->call([
+             CycleSeeder::class,
+             SerieSeeder::class,
+         ]);
     }
 }
