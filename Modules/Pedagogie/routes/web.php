@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Pedagogie\Http\Controllers\PedagogieController;
+use Modules\Pedagogie\Http\Controllers\EleveController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::resource('pedagogies', PedagogieController::class)->names('pedagogie');
+    Route::resource('pedagogies', EleveController::class)->names('pedagogie');
 });

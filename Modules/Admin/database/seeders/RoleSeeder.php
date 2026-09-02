@@ -82,7 +82,7 @@ class RoleSeeder extends Seeder
                 "description" => "Ce rôle est destiné au personnel comptable pour la gestion des frais, factures, paiements, reçus, dépenses et opérations financières."
             ],
             [
-                "libelle" => "Parent / Tuteur",
+                "libelle" => "ParentModel / Tuteur",
                 "code" => "parent",
                 "description" => "Ce rôle est destiné aux parents et tuteurs pour consulter les informations scolaires et financières de leurs enfants."
             ],
@@ -347,7 +347,7 @@ class RoleSeeder extends Seeder
             $rapportExporterPermission->id,
         ]);
 
-        // Parent / Tuteur
+        // ParentModel / Tuteur
         $parent->permissions()->attach([
             $eleveConsulterPermission->id,
             $dossierConsulterPermission->id,

@@ -52,7 +52,7 @@ class UserSeeder extends Seeder
                 "email" => "parent@eschool.ga",
                 "password" => "azerty",
                 "password_changed" => "active",
-                "role_id" => 6, // Parent / Tuteur
+                "role_id" => 6, // ParentModel / Tuteur
             ],
             [
                 "nom" => "OBAME",

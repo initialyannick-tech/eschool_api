@@ -51,7 +51,6 @@ class ClasseRepository
     public function store(array $data)
     {
         $data['actif'] = $data['actif'] ?? true;
-
         /**
          * Éviter les doublons.
          */
@@ -80,7 +79,6 @@ class ClasseRepository
          * L'année scolaire ne doit pas changer.
          */
         unset($data['annee_scolaire_id']);
-
         /**
          * Vérification du nom.
          */
