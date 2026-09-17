@@ -9,6 +9,7 @@ use Modules\Core\Http\Controllers\CoreController;
 use Modules\Parametre\Http\Requests\AnneeScolaireRequest;
 use Modules\Parametre\Models\AnneeScolaire;
 use Modules\Parametre\Repositories\AnneeScolaireRepository;
+use Throwable;
 
 class AnneeScolaireController extends CoreController
 {
@@ -87,21 +88,14 @@ class AnneeScolaireController extends CoreController
      * @param int $id
      * @return JsonResponse
      */
-    public function update(
-        AnneeScolaireRequest $request,
-        int $id
-    ): JsonResponse {
-
+    public function update(AnneeScolaireRequest $request, int $id): JsonResponse {
         $data = $request->validated();
-
         $res = $this->repository->update($data, $id);
-
         if (!$res) {
             return $this->returnError(
                 'Erreur lors de la mise à jour de l\'année scolaire'
             );
         }
-
         return $this->returnSuccess(
             'Année scolaire mise à jour avec succès',
             $res
@@ -117,13 +111,11 @@ class AnneeScolaireController extends CoreController
     public function destroy(int $id): JsonResponse
     {
         $res = $this->repository->destroy($id);
-
         if (!$res) {
             return $this->returnError(
                 'Impossible de supprimer cette année scolaire'
             );
         }
-
         return $this->returnSuccess(
             'Année scolaire supprimée avec succès'
         );
@@ -134,17 +126,16 @@ class AnneeScolaireController extends CoreController
      *
      * @param int $id
      * @return JsonResponse
+     * @throws Throwable
      */
     public function ouvrir(int $id): JsonResponse
     {
         $res = $this->repository->ouvrir($id);
-
         if (!$res) {
             return $this->returnError(
                 'Impossible d\'ouvrir cette année scolaire'
             );
         }
-
         return $this->returnSuccess(
             'Année scolaire ouverte avec succès',
             $res
@@ -156,17 +147,16 @@ class AnneeScolaireController extends CoreController
      *
      * @param int $id
      * @return JsonResponse
+     * @throws Throwable
      */
     public function activer(int $id): JsonResponse
     {
         $res = $this->repository->activer($id);
-
         if (!$res) {
             return $this->returnError(
                 'Impossible d\'activer cette année scolaire'
             );
         }
-
         return $this->returnSuccess(
             'Année scolaire définie comme active',
             $res
@@ -178,17 +168,16 @@ class AnneeScolaireController extends CoreController
      *
      * @param int $id
      * @return JsonResponse
+     * @throws Throwable
      */
     public function cloturer(int $id): JsonResponse
     {
         $res = $this->repository->cloturer($id);
-
         if (!$res) {
             return $this->returnError(
                 'Impossible de clôturer cette année scolaire'
             );
         }
-
         return $this->returnSuccess(
             'Année scolaire clôturée avec succès',
             $res
@@ -203,13 +192,11 @@ class AnneeScolaireController extends CoreController
     public function active(): JsonResponse
     {
         $res = $this->repository->active();
-
         if (!$res) {
             return $this->returnError(
                 'Aucune année scolaire active'
             );
         }
-
         return $this->returnSuccess(
             'Année scolaire active récupérée avec succès',
             $res
@@ -224,13 +211,11 @@ class AnneeScolaireController extends CoreController
     public function preparerSuivante(): JsonResponse
     {
         $res = $this->repository->preparerSuivante();
-
         if (!$res) {
             return $this->returnError(
                 'Impossible de préparer la prochaine année scolaire'
             );
         }
-
         return $this->returnSuccess(
             'Prochaine année scolaire préparée avec succès',
             $res

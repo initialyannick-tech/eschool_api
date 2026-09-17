@@ -5,7 +5,7 @@ namespace Modules\Pedagogie\Transformers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ClasseResource extends JsonResource
+class  ClasseResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

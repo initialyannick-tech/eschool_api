@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Pedagogie\Http\Controllers\ClasseController;
+use Modules\Pedagogie\Http\Controllers\CycleController;
 use Modules\Pedagogie\Http\Controllers\EleveController;
 use Modules\Pedagogie\Http\Controllers\ParentController;
+use Modules\Pedagogie\Http\Controllers\SerieController;
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -36,5 +38,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/{id}', [EleveController::class, 'show'])->name('eleves.show');
         Route::put('/{id}', [EleveController::class, 'update'])->name('eleves.update');
         Route::delete('/{id}', [EleveController::class, 'destroy'])->name('eleves.destroy');
+    });
+
+
+    Route::prefix('cycle')->group(function () {
+        Route::get('/', [CycleController::class, 'paginate'])->name('cycle.index');
+        Route::get('/liste', [CycleController::class, 'list'])->name('cycle.list');
+        Route::post('/', [CycleController::class, 'store'])->name('cycle.store');
+        Route::get('/{id}', [CycleController::class, 'show'])->name('cycle.show');
+        Route::put('/{id}', [CycleController::class, 'update'])->name('cycle.update');
+        Route::delete('/{id}', [CycleController::class, 'destroy'])->name('cycle.destroy');
+    });
+
+    Route::prefix('serie')->group(function () {
+        Route::get('/', [SerieController::class, 'paginate'])->name('serie.index');
+        Route::get('/liste', [SerieController::class, 'list'])->name('serie.list');
+        Route::post('/', [SerieController::class, 'store'])->name('serie.store');
+        Route::get('/{id}', [SerieController::class, 'show'])->name('serie.show');
+        Route::put('/{id}', [SerieController::class, 'update'])->name('serie.update');
+        Route::delete('/{id}', [SerieController::class, 'destroy'])->name('serie.destroy');
     });
 });
