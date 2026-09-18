@@ -31,7 +31,7 @@ class User extends Authenticatable
 
     const ACTIVE = 'active';
     const INACTIVE = 'inactive';
-
+    const ENSEIGNANT = '4';
 
     protected static function boot()
     {
@@ -57,6 +57,11 @@ class User extends Authenticatable
     public function role(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function specialite(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Specialite::class);
     }
 
 }

@@ -2,55 +2,33 @@
 
 namespace Modules\Pedagogie\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
-class SerieController extends Controller
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Modules\Core\Http\Controllers\CoreController;
+use Modules\Pedagogie\Repositories\SerieRepository;
+
+class SerieController extends CoreController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected SerieRepository $repository;
+
+    public function __construct(SerieRepository $repository)
     {
-        return view('pedagogie::index');
+        $this->repository = $repository;
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Liste sans pagination.
      */
-    public function create()
+    public function list(): AnonymousResourceCollection
     {
-        return view('pedagogie::create');
+        return $this->repository->index();
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Liste paginée.
      */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function paginate(): AnonymousResourceCollection
     {
-        return view('pedagogie::show');
+        return $this->repository->paginate();
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        return view('pedagogie::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
 }

@@ -5,6 +5,7 @@ namespace Modules\Pedagogie\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 use Modules\Pedagogie\Models\Cycle;
+use Modules\Pedagogie\Models\Serie;
 
 class ClasseRequest extends FormRequest
 {
@@ -33,51 +34,141 @@ class ClasseRequest extends FormRequest
         return true;
     }
 
-    public function withValidator(Validator $validator): void {
+    public function withValidator(Validator $validator): void
+    {
         $validator->after(function ($validator) {
+
             if (!$this->cycle_id) {
                 return;
             }
+
             $cycle = Cycle::find($this->cycle_id);
+
             if (!$cycle) {
                 return;
             }
+
             $nom = strtolower(trim($this->nom ?? ''));
-            $premierCycle = ['6e', '6ème', '5e', '5ème', '4e', '4ème', '3e', '3ème',];
-            $secondCycle = ['2nde', '2nd', '1ère', '1ere', 'tle', 'terminale',];
 
-            /**
-             * Vérification premier cycle.
+            /*
+             * Classes du premier cycle.
              */
-            if ($cycle->code === 'premier' && !$this->startsWithAny($nom, $premierCycle)) {
-                $validator->errors()->add('nom', 'Cette classe ne correspond pas au premier cycle.');
-            }
-            /**
-             * Vérification second cycle.
-             */
-            if ($cycle->code === 'second' && !$this->startsWithAny($nom, $secondCycle)) {
-                $validator->errors()->add('nom', 'Cette classe ne correspond pas au second cycle.');
-            }
+            $premierCycle = [
+                '6e',
+                '6ème',
+                '5e',
+                '5ème',
+                '4e',
+                '4ème',
+                '3e',
+                '3ème',
+            ];
 
-            /**
-             * Déterminer si la classe nécessite
-             * obligatoirement une série.
+            /*
+             * Classes du second cycle.
              */
-            $serieObligatoire = $this->requiresSerie($nom);
+            $secondCycle = [
+                '2nde',
+                '2nd',
+                '1ère',
+                '1ere',
+                'tle',
+                'terminale',
+            ];
 
-            if ($serieObligatoire && !$this->serie_id) {
-                $validator->errors()->add('serie_id', 'La série est obligatoire pour les classes de 2nde, 1ère et Tle.');
-            }
 
-            /**
-             * Une série ne doit pas être utilisée
-             * pour les classes du premier cycle.
+            /*
+             * =====================================================
+             * VÉRIFICATION DU CYCLE
+             * =====================================================
              */
-            if (!$serieObligatoire && $this->serie_id) {
+
+            if (
+                $cycle->code === 'premier'
+                && !$this->startsWithAny($nom, $premierCycle)
+            ) {
                 $validator->errors()->add(
-                    'serie_id',
-                    'La série ne peut pas être renseignée pour cette classe.'
+                    'nom',
+                    'Cette classe ne correspond pas au premier cycle.'
                 );
+            }
+
+
+            if (
+                $cycle->code === 'second'
+                && !$this->startsWithAny($nom, $secondCycle)
+            ) {
+                $validator->errors()->add(
+                    'nom',
+                    'Cette classe ne correspond pas au second cycle.'
+                );
+            }
+
+
+            /*
+             * =====================================================
+             * PREMIER CYCLE
+             * =====================================================
+             *
+             * Pour le premier cycle :
+             *
+             * - aucune série n'est obligatoire
+             * - si une série est renseignée, elle doit être "Autre"
+             *
+             */
+
+            if ($cycle->code === 'premier') {
+
+                if ($this->serie_id) {
+
+                    $serie = Serie::find($this->serie_id);
+
+                    if (!$serie) {
+                        $validator->errors()->add(
+                            'serie_id',
+                            'La série sélectionnée est invalide.'
+                        );
+
+                        return;
+                    }
+
+                    if (strtolower(trim($serie->libelle)) !== 'autre') {
+
+                        $validator->errors()->add(
+                            'serie_id',
+                            'Pour une classe du premier cycle, seule la série "Autre" peut être renseignée.'
+                        );
+                    }
+                }
+
+                return;
+            }
+
+
+            /*
+             * =====================================================
+             * SECOND CYCLE
+             * =====================================================
+             *
+             * La série est obligatoire pour :
+             *
+             * - 2nde
+             * - 1ère
+             * - Tle
+             *
+             */
+
+            if ($cycle->code === 'second') {
+
+                $serieObligatoire = $this->requiresSerie($nom);
+
+                if ($serieObligatoire && !$this->serie_id) {
+
+                    $validator->errors()->add(
+                        'serie_id',
+                        'La série est obligatoire pour les classes de 2nde, 1ère et Tle.'
+                    );
+                }
             }
         });
     }

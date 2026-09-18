@@ -14,7 +14,7 @@ class CycleResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'nom' => $this->nom,
+            'libelle' => $this->libelle,
         ];
     }
 }

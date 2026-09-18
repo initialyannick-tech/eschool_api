@@ -9,6 +9,7 @@ use Modules\Admin\Emails\NewUserMail;
 
 use Modules\Admin\Models\User;
 use Modules\Admin\Transformers\AuthResource;
+use Modules\Admin\Transformers\EnseignantResource;
 use Modules\Admin\Transformers\UserResource;
 
 class UserRepository
@@ -86,5 +87,11 @@ class UserRepository
             return AuthResource::make($user);
         }
         return false;
+    }
+
+    public function enseignants(): AnonymousResourceCollection
+    {
+        $enseignants = User::where('role_id', User::ENSEIGNANT)->where('status', User::ACTIVE)->with(['specialite'])->get();
+        return EnseignantResource::collection($enseignants);
     }
 }

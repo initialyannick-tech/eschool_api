@@ -106,4 +106,14 @@ class UserController extends CoreController
             return $this->returnSuccess('Mot de passe mis à jour avec succès', $res);
         }
     }
+
+    /**
+     * Liste des enseignants
+     *
+     * @return AnonymousResourceCollection
+     */
+    public function enseignants()
+    {
+        return $this->repository->enseignants();
+    }
 }
