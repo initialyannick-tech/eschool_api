@@ -13,14 +13,16 @@ return new class extends Migration
     {
         Schema::create('parents', function (Blueprint $table) {
             $table->id();
-            $table->string('nom', 100);
-            $table->string('prenom', 100);
-            $table->string('relation', 50);
+            $table->string('nom');
+            $table->string('prenom');
             $table->string('telephone', 30);
+            $table->string('telephone_secondaire', 30)->nullable();
             $table->string('email')->nullable();
-            $table->text('adresse')->nullable();
-            $table->boolean('responsable_principal')->default(true);
-            $table->boolean('responsable_financier')->default(false);
+            $table->string('adresse')->nullable();
+            $table->string('profession')->nullable();
+            $table->string('lieu_travail')->nullable();
+            $table->enum('statut', ['actif','inactif'])->default('actif');
+            $table->text('observation')->nullable();
             $table->timestamps();
         });
     }

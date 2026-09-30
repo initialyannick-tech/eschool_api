@@ -29,15 +29,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::prefix('eleves')->group(function () {
-        Route::get('/', [EleveController::class, 'paginate'])->name('eleves.index');
-        Route::get('/liste', [EleveController::class, 'list'])->name('eleves.list');
         Route::post('/', [EleveController::class, 'store'])->name('eleves.store');
-        Route::get('/parent/{parentId}', [EleveController::class, 'byParent'])->name('eleves.by.parent');
-        Route::put('/{eleveId}/parent', [EleveController::class, 'assignerParent'])->name('eleves.assigner.parent');
-        Route::delete('/{eleveId}/parent', [EleveController::class, 'retirerParent'])->name('eleves.retirer.parent');
-        Route::get('/{id}', [EleveController::class, 'show'])->name('eleves.show');
-        Route::put('/{id}', [EleveController::class, 'update'])->name('eleves.update');
-        Route::delete('/{id}', [EleveController::class, 'destroy'])->name('eleves.destroy');
+        Route::get('/liste', [EleveController::class, 'list'])->name('eleves.liste');
+        Route::get('search/{keyword}', [EleveController::class, 'search'])->name('eleves.search');
+        Route::get('/', [EleveController::class, 'index'])->name('eleves.index');
+        Route::get('/{eleves}', [EleveController::class, 'show'])->name('eleves.show');
+        Route::put('/{eleves}', [EleveController::class, 'update'])->name('eleves.update');
+        Route::delete('/{eleves}', [EleveController::class, 'destroy'])->name('eleves.destroy');
     });
 
 

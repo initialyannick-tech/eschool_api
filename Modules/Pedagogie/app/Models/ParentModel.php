@@ -15,26 +15,39 @@ class ParentModel extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = [
+     protected $fillable = [
         'nom',
         'prenom',
-        'relation',
         'telephone',
+        'telephone_secondaire',
         'email',
         'adresse',
-        'responsable_principal',
-        'responsable_financier',
+        'profession',
+        'lieu_travail',
+        'statut',
+        'observation',
     ];
+
     protected $casts = [
-        'responsable_principal' => 'boolean',
-        'responsable_financier' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
-     * Un parent peut avoir plusieurs élèves.
+     * Élèves associés à ce parent.
      */
-    public function eleves(): HasMany
+    public function eleves(): BelongsToMany
     {
-        return $this->hasMany(Eleve::class, 'parent_id');
+        return $this->belongsToMany(
+            Eleve::class,
+            'eleve_parent',
+            'parent_id',
+            'eleve_id'
+        )->withPivot([
+            'relation',
+            'responsable_principal',
+            'responsable_financier',
+        ])->withTimestamps();
     }
+  
 }

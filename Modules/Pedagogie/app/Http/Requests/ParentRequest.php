@@ -11,15 +11,17 @@ class ParentRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'nom' => ['required', 'string', 'max:100',],
-            'prenom' => ['required', 'string', 'max:100',],
-            'relation' => ['required', 'string', 'max:50',],
-            'telephone' => ['required', 'string', 'max:30',],
-            'email' => ['nullable', 'email', 'max:255',],
-            'adresse' => ['nullable', 'string',],
-            'responsable_principal' => ['nullable', 'boolean',],
-            'responsable_financier' => ['nullable', 'boolean',],
+         return [
+            'nom' => [ 'required','string', 'max:255',],
+            'prenom' => ['required','string','max:255',],
+            'telephone' => ['required','string','max:30',],
+            'telephone_secondaire' => ['nullable','string','max:30',],
+            'email' => ['nullable','email','max:255',],
+            'adresse' => ['nullable','string','max:255',],
+            'profession' => ['nullable','string','max:255',],
+            'lieu_travail' => ['nullable','string','max:255',],
+            'statut' => [ 'required','in:actif,inactif',],
+            'observation' => ['nullable','string',],
         ];
     }
 
@@ -34,20 +36,28 @@ class ParentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nom.required' => 'Le nom du parent/tuteur est obligatoire.',
-            'nom.string' => 'Le nom du parent/tuteur doit être une chaîne de caractères.',
-            'nom.max' => 'Le nom du parent/tuteur ne peut pas dépasser 100 caractères.',
-            'prenom.required' => 'Le prénom du parent/tuteur est obligatoire.',
-            'prenom.string' => 'Le prénom du parent/tuteur doit être une chaîne de caractères.',
-            'prenom.max' => 'Le prénom du parent/tuteur ne peut pas dépasser 100 caractères.',
-            'relation.required' => 'La relation avec l’élève est obligatoire.',
-            'relation.max' => 'La relation ne peut pas dépasser 50 caractères.',
+            'nom.required' => 'Le nom est obligatoire.',
+            'nom.string' => 'Le nom doit être une chaîne de caractères.',
+            'nom.max' => 'Le nom ne peut pas dépasser 255 caractères.',
+            'prenom.required' => 'Le prénom est obligatoire.',
+            'prenom.string' => 'Le prénom doit être une chaîne de caractères.',
+            'prenom.max' => 'Le prénom ne peut pas dépasser 255 caractères.',
             'telephone.required' => 'Le numéro de téléphone est obligatoire.',
+            'telephone.string' => 'Le numéro de téléphone doit être valide.',
             'telephone.max' => 'Le numéro de téléphone ne peut pas dépasser 30 caractères.',
-            'email.email' => 'L’adresse email est invalide.',
+            'telephone_secondaire.string' => 'Le téléphone secondaire doit être valide.',
+            'telephone_secondaire.max' => 'Le téléphone secondaire ne peut pas dépasser 30 caractères.',
+            'email.email' => 'L’adresse email doit être valide.',
             'email.max' => 'L’adresse email ne peut pas dépasser 255 caractères.',
-            'responsable_principal.boolean' =>'Le responsable principal doit être un booléen.',
-            'responsable_financier.boolean' =>'Le responsable financier doit être un booléen.',
+            'adresse.string' => 'L’adresse doit être une chaîne de caractères.',
+            'adresse.max' => 'L’adresse ne peut pas dépasser 255 caractères.',
+            'profession.string' => 'La profession doit être une chaîne de caractères.',
+            'profession.max' => 'La profession ne peut pas dépasser 255 caractères.',
+            'lieu_travail.string' => 'Le lieu de travail doit être une chaîne de caractères.',
+            'lieu_travail.max' => 'Le lieu de travail ne peut pas dépasser 255 caractères.',
+            'statut.required' => 'Le statut est obligatoire.',
+            'statut.in' => 'Le statut sélectionné est invalide.',
+            'observation.string' => 'L’observation doit être une chaîne de caractères.',
         ];
     }
 }

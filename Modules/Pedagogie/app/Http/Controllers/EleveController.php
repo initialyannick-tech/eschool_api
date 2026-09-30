@@ -6,7 +6,6 @@ namespace Modules\Pedagogie\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Modules\Core\Http\Controllers\CoreController;
-use Modules\Pedagogie\Http\Requests\AssignerParentRequest;
 use Modules\Pedagogie\Http\Requests\EleveRequest;
 use Modules\Pedagogie\Repositories\EleveRepository;
 use Modules\Pedagogie\Transformers\EleveResource;
@@ -21,77 +20,100 @@ class EleveController extends CoreController
     }
 
     /**
-     * Liste complète élèves
+     * Liste élève sans pagination
+     *
+     * @return void
      */
-    public function list(): AnonymousResourceCollection
-    {
+    public function list() {
         return $this->repository->index();
     }
 
     /**
-     * Liste élèves paginée
+     * Liste des élèves
+     *
+     * @return AnonymousResourceCollection
      */
-    public function paginate(): AnonymousResourceCollection
+    public function index(): AnonymousResourceCollection
     {
         return $this->repository->paginate();
     }
 
+
+    /**
+     * Création d'un élève
+     *
+     * @param EleveRequest $request
+     * @return JsonResponse
+     */
+    public function store(EleveRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $eleve = $this->repository->store($data);
+        if(!$eleve){
+            return $this->returnError('Une erreur est survenue lors de la création d\'un élève');
+        } else {
+            return $this->returnSuccess('Elève créé avec succès', $eleve);
+        }
+    }
+
+
     /**
      * Afficher un élève
+     *
+     * @param [type] $code
+     * @return EleveResource
      */
-    public function show(int $id): EleveResource
+    public function show($code)
     {
-        return $this->repository->show($id);
+        return $this->repository->show($code);
     }
 
-    /**
-     * Créer un élève
-     */
-    public function store(EleveRequest $request): JsonResponse {
-        $eleve = $this->repository->store($request->validated());
-        return $this->returnSuccess('Élève créé avec succès.', new EleveResource($eleve->load('parent')));
-    }
 
     /**
-     * Modifier un élève
+     * Rechercher un élève
+     *
+     * @param [type] $keyword
+     * @return AnonymousResourceCollection
      */
-    public function update(EleveRequest $request, int $id): JsonResponse {
-        $eleve = $this->repository->update($request->validated(), $id);
-        return $this->returnSuccess('Élève modifié avec succès.', new EleveResource($eleve));
+    public function search($keyword): AnonymousResourceCollection
+    {
+        return $this->repository->search($keyword);
     }
 
-    /**
-     * Supprimer un élève
-     */
-    public function destroy(int $id): JsonResponse {
-        $this->repository->destroy($id);
-        return $this->returnSuccess('Élève supprimé avec succès.');
-    }
 
     /**
-     * Assigner un élève à un parent
+     * Mise à jour d'un élève
+     *
+     * @param EleveRequest $request
+     * @param [type] $id
+     * @return JsonResponse
      */
-    public function assignerParent(AssignerParentRequest $request, int $eleveId): JsonResponse {
-        $eleve = $this->repository->assignerParent(
-            $eleveId,
-            $request->validated()[
-                'parent_id'
-            ]);
-        return $this->returnSuccess('Élève assigné au parent avec succès.', new EleveResource($eleve));
+    public function update(EleveRequest $request, $id): JsonResponse
+    {
+        $data = $request->validated();
+        $eleve = $this->repository->update($id, $data);
+        if(!$eleve){
+            return $this->returnError('Une erreur est survenue lors de la mise à jour de l\'élève');
+        } else {
+            return $this->returnSuccess('Elève mis à jour avec succès', $eleve);
+        }
     }
 
-    /**
-     * Retirer le parent d'un élève
-     */
-    public function retirerParent(int $eleveId): JsonResponse {
-        $eleve = $this->repository->retirerParent($eleveId);
-        return $this->returnSuccess('Parent retiré de l’élève avec succès.', new EleveResource($eleve));
-    }
 
     /**
-     * Liste des élèves d'un parent
+     * Suppression d'un élève
+     *
+     * @param [type] $id
+     * @return JsonResponse
      */
-    public function byParent(int $parentId): AnonymousResourceCollection {
-        return $this->repository->byParent($parentId);
+    public function destroy($id): JsonResponse
+    {
+        $res = $this->repository->delete($id);
+        if(!$res){
+            return $this->returnError('Une erreur est survenue lors de la suppression de l\'élève');
+        } else {
+            return $this->returnSuccess('Elève supprimé avec succès');
+        }
     }
+
 }

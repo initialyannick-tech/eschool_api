@@ -16,13 +16,14 @@ class ParentResource extends JsonResource
             'id' => $this->id,
             'nom' => $this->nom,
             'prenom' => $this->prenom,
-            'relation' => $this->relation,
             'telephone' => $this->telephone,
+            'telephone_secondaire' => $this->telephone_secondaire,
             'email' => $this->email,
             'adresse' => $this->adresse,
-            'responsable_principal' => $this->responsable_principal,
-            'responsable_financier' => $this->responsable_financier,
-            'nombre_enfants' => $this->whenLoaded('eleves', fn () => $this->eleves->count()),
+            'profession'=> $this->profession,
+            'lieu_travail'=> $this->lieu_travail,
+            'statut' => $this->statut,
+            'nombre_enfants' => $this->whenLoaded('eleves',fn () => $this->eleves->count()),
             'eleves' => $this->whenLoaded(
                 'eleves',
                 fn () => $this->eleves->map(function ($eleve) {
@@ -33,11 +34,18 @@ class ParentResource extends JsonResource
                         'prenom' => $eleve->prenom,
                         'sexe' => $eleve->sexe,
                         'statut' => $eleve->statut,
+
+                        'relation' => $eleve->pivot->relation ?? null,
+                        'responsable_principal' => (bool) (
+                            $eleve->pivot->responsable_principal ?? false
+                        ),
+                        'responsable_financier' => (bool) (
+                            $eleve->pivot->responsable_financier ?? false
+                        ),
                     ];
                 })
             ),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'observation' => $this->observation,
         ];
     }
 }

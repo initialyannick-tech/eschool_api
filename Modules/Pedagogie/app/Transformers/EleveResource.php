@@ -28,22 +28,8 @@ class EleveResource extends JsonResource
             'photo' => $this->photo,
             'situation_particuliere' => $this->situation_particuliere,
             'statut' => $this->statut,
-            'parent' => $this->whenLoaded(
-                'parent',
-                function () {
-                    if (!$this->parent) {return null;}
-                    return [
-                        'id' => $this->parent->id,
-                        'nom' => $this->parent->nom,
-                        'prenom' => $this->parent->prenom,
-                        'relation' => $this->parent->relation,
-                        'telephone' => $this->parent->telephone,
-                        'email' => $this->parent->email,
-                        'adresse' => $this->parent->adresse,
-                        'responsable_principal' => $this->parent->responsable_principal,
-                        'responsable_financier' => $this->parent->responsable_financier,
-                    ];
-                }
+            'parents' => ParentResource::collection(
+                $this->whenLoaded('parents')
             ),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

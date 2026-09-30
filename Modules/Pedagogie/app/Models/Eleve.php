@@ -5,7 +5,7 @@ namespace Modules\Pedagogie\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-//use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
 
@@ -18,7 +18,6 @@ class Eleve extends Model
      * The attributes that are mass assignable.
      */
     protected $fillable = [
-        'parent_id',
         'matricule',
         'nom',
         'prenom',
@@ -59,12 +58,21 @@ class Eleve extends Model
         });
     }
 
-    /**
-     * Un élève appartient à un seul parent/tuteur.
+     /**
+     * Parents / responsables associés à l'élève.
      */
-    public function parent(): BelongsTo
+    public function parents(): BelongsToMany
     {
-        return $this->belongsTo(ParentModel::class, 'parent_id');
+        return $this->belongsToMany(
+            ParentModel::class,
+            'eleve_parent',
+            'eleve_id',
+            'parent_id'
+        )->withPivot([
+            'relation',
+            'responsable_principal',
+            'responsable_financier',
+        ])->withTimestamps();
     }
 
     /**

@@ -12,7 +12,6 @@ class EleveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'parent_id' => ['nullable', 'integer', 'exists:parents,id',],
             'nom' => ['required', 'string', 'max:100'],
             'prenom' => ['required', 'string', 'max:100'],
             'sexe' => ['required', 'in:masculin,feminin'],
@@ -39,8 +38,6 @@ class EleveRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'parent_id.integer' => 'Le parent/tuteur sélectionné est invalide.',
-            'parent_id.exists' => 'Le parent/tuteur sélectionné n’existe pas.',
             'nom.required' => 'Le nom de l’élève est obligatoire.',
             'nom.string' => 'Le nom de l’élève doit être une chaîne de caractères.',
             'nom.max' => 'Le nom de l’élève ne peut pas dépasser 100 caractères.',
