@@ -15,7 +15,17 @@ class EnseignantResource extends JsonResource
             'nom' => $this->nom,
             'prenom' => $this->prenom,
             'email' => $this->email,
-            'specialite' => $this->specialite->only(['id', 'nom']),
+            'status' => $this->status,
+            'specialite_id' => $this->specialite_id,
+            'specialite' => $this->specialite ? $this->specialite->only(['id', 'nom']) : null,
+            'matieres' => $this->matieres?->map(function ($matiere) {
+                return [
+                    'id' => $matiere->id,
+                    'code' => $matiere->code,
+                    'libelle' => $matiere->libelle,
+                ];
+            })->values()->all() ?? [],
+            'matiere_count' => $this->matieres?->count() ?? 0,
         ];
     }
 }

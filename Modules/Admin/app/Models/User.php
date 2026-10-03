@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\Pedagogie\Models\Matiere;
 
 
 class User extends Authenticatable
@@ -27,6 +28,7 @@ class User extends Authenticatable
         'password_changed',
         'status',
         'role_id',
+        'specialite_id',
     ];
 
     const ACTIVE = 'active';
@@ -62,6 +64,11 @@ class User extends Authenticatable
     public function specialite(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Specialite::class);
+    }
+
+    public function matieres(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Matiere::class, 'enseignant_matiere', 'user_id', 'matiere_id');
     }
 
 }

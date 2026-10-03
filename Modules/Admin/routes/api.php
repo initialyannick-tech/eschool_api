@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Admin\Http\Controllers\AuthController;
 use Modules\Admin\Http\Controllers\RoleController;
+use Modules\Admin\Http\Controllers\SpecialiteController;
 use Modules\Admin\Http\Controllers\UserController;
 
 
@@ -19,6 +20,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [RoleController::class, 'store'])->name('role.store');
         Route::put('/{role}', [RoleController::class, 'update'])->name('role.update');
         Route::delete('/{role}', [RoleController::class, 'destroy'])->name('role.destroy');
+    });
+
+    Route::prefix('specialites')->group(function () {
+        Route::get('/', [SpecialiteController::class, 'index'])->name('specialites.index');
+    });
+
+    Route::prefix('enseignants')->group(function () {
+        Route::get('/', [\Modules\Admin\Http\Controllers\EnseignantController::class, 'index'])->name('enseignants.index');
+        Route::get('/paginate', [\Modules\Admin\Http\Controllers\EnseignantController::class, 'paginate'])->name('enseignants.paginate');
+        Route::get('/{id}', [\Modules\Admin\Http\Controllers\EnseignantController::class, 'show'])->name('enseignants.show');
+        Route::post('/', [\Modules\Admin\Http\Controllers\EnseignantController::class, 'store'])->name('enseignants.store');
+        Route::put('/{id}', [\Modules\Admin\Http\Controllers\EnseignantController::class, 'update'])->name('enseignants.update');
+        Route::delete('/{id}', [\Modules\Admin\Http\Controllers\EnseignantController::class, 'destroy'])->name('enseignants.destroy');
     });
 
     Route::prefix('userList')->group(function() {

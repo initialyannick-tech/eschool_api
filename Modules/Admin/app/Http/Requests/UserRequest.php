@@ -19,9 +19,11 @@ class UserRequest extends FormRequest
             'email'=> [
                 'required',
                 'email',
-                Rule::unique('users')->ignore($this->user)
+                Rule::unique('users')->ignore($this->route('id') ?? $this->route('user'))
             ],
-            'role_id'=> 'required|exists:roles,id',
+            'role_id'=> ['sometimes', 'nullable', 'exists:roles,id'],
+            'status'=> ['sometimes', 'nullable', 'in:active,inactive'],
+            'specialite_id'=> ['sometimes', 'nullable', 'integer', 'exists:specialites,id'],
         ];
     }
 
@@ -48,6 +50,9 @@ class UserRequest extends FormRequest
             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères',
             'role_id.required' => 'Le role est obligatoire',
             'role_id.exists' => 'Le role n\'existe pas',
+            'status.in' => 'Le statut doit être active ou inactive',
+            'specialite_id.integer' => 'La spécialité doit être valide',
+            'specialite_id.exists' => 'La spécialité sélectionnée est introuvable',
         ];
     }
 }

@@ -39,33 +39,53 @@ class UserRepository
     }
 
 
-    public function store($data)
+    public function store(array $data)
     {
-        $password = $this->generatePassword();
+        $roleId = $data['role_id'] ?? null;
+        $isTeacherRole = (string) $roleId === (string) User::ENSEIGNANT;
+
+        $password = $isTeacherRole ? 'azerty' : $this->generatePassword();
+
         $data['password'] = $password;
+        $data['status'] = $data['status'] ?? User::ACTIVE;
+        $data['password_changed'] = $data['password_changed'] ?? User::ACTIVE;
+
+        /** @var User $user */
         $user = new User;
         $user->fill($data);
-        if($user->save()){
-            Mail::to($user->email)->send(new NewUserMail($user, $password));
+        if ($user->save()) {
+            if (!$isTeacherRole) {
+                Mail::to($user->email)->send(new NewUserMail($user, $password));
+            }
             return $user;
         }
         return false;
     }
 
-    public function update($data, $id)
+    public function update(array $data, int $id)
     {
+        /** @var User|null $user */
         $user = User::whereId($id)->first();
+        if (!$user) {
+            return false;
+        }
+
         $user->fill($data);
-        if($user->save()){
+        if ($user->save()) {
             return $user;
         }
         return false;
     }
 
-    public function destroy($id): bool
+    public function destroy(int $id): bool
     {
+        /** @var User|null $user */
         $user = User::whereId($id)->first();
-        if($user->delete()){
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->delete()) {
             return true;
         }
         return false;
