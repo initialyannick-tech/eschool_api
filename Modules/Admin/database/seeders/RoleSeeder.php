@@ -162,7 +162,12 @@ class RoleSeeder extends Seeder
         $bulletinValiderPermission = Permission::where('code', 'bulletin.valider')->first();
 
         // Emploi du temps
-        $emploiTempsPermission = Permission::where('code', 'emploi_temps.consulter')->first();
+        $emploiTempsManagementPermission = Permission::where('code', 'emploi_temps.management')->first();
+        $emploiTempsConsulterPermission = Permission::where('code', 'emploi_temps.consulter')->first();
+
+        // Salles
+        $sallePermission = Permission::where('code', 'salle.management')->first();
+        $salleConsulterPermission = Permission::where('code', 'salle.consulter')->first();
 
         // Cahier de textes
         $cahierTextePermission = Permission::where('code', 'cahier_texte.management')->first();
@@ -274,6 +279,10 @@ class RoleSeeder extends Seeder
             $statistiquePermission->id,
             $rapportPermission->id,
             $rapportExporterPermission->id,
+            $sallePermission->id,
+            $salleConsulterPermission->id,
+            $emploiTempsManagementPermission->id,
+            $emploiTempsConsulterPermission->id,
         ]);
 
         // Administration
@@ -301,6 +310,10 @@ class RoleSeeder extends Seeder
             $statistiquePermission->id,
             $rapportPermission->id,
             $rapportExporterPermission->id,
+            $sallePermission->id,
+            $salleConsulterPermission->id,
+            $emploiTempsManagementPermission->id,
+            $emploiTempsConsulterPermission->id,
         ]);
 
         // Enseignant
