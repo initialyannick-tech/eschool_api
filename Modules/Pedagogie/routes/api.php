@@ -6,7 +6,9 @@ use Modules\Pedagogie\Http\Controllers\ClasseController;
 use Modules\Pedagogie\Http\Controllers\CycleController;
 use Modules\Pedagogie\Http\Controllers\EleveController;
 use Modules\Pedagogie\Http\Controllers\MatiereController;
+use Modules\Pedagogie\Http\Controllers\EmploiDuTempsController;
 use Modules\Pedagogie\Http\Controllers\ParentController;
+use Modules\Pedagogie\Http\Controllers\SalleController;
 use Modules\Pedagogie\Http\Controllers\SerieController;
 
 
@@ -75,5 +77,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/enseignant/{enseignantId}/matieres', [AffectationEnseignantController::class, 'assignerMatieresAEnseignant'])->name('affectation.enseignant.assigner');
         Route::get('/matiere/{matiereId}/enseignants', [AffectationEnseignantController::class, 'enseignantsParMatiere'])->name('affectation.matiere.enseignants');
         Route::post('/matiere/{matiereId}/enseignants', [AffectationEnseignantController::class, 'assignerEnseignantsAMatiere'])->name('affectation.matiere.assigner');
+    });
+
+    Route::prefix('salles')->group(function () {
+        Route::get('/', [SalleController::class, 'index'])->name('salles.index');
+        Route::post('/', [SalleController::class, 'store'])->name('salles.store');
+        Route::get('/{id}', [SalleController::class, 'show'])->name('salles.show');
+        Route::put('/{id}', [SalleController::class, 'update'])->name('salles.update');
+        Route::delete('/{id}', [SalleController::class, 'destroy'])->name('salles.destroy');
+    });
+
+    Route::prefix('emplois-du-temps')->group(function () {
+        Route::get('/classe/{classeId}', [EmploiDuTempsController::class, 'getByClasse'])->name('emplois-du-temps.classe');
+        Route::get('/enseignant/{enseignantId}', [EmploiDuTempsController::class, 'getByEnseignant'])->name('emplois-du-temps.enseignant');
+        Route::post('/', [EmploiDuTempsController::class, 'store'])->name('emplois-du-temps.store');
+        Route::put('/{id}', [EmploiDuTempsController::class, 'update'])->name('emplois-du-temps.update');
+        Route::delete('/{id}', [EmploiDuTempsController::class, 'destroy'])->name('emplois-du-temps.destroy');
     });
 });
