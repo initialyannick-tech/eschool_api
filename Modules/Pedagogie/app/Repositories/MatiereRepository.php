@@ -26,9 +26,16 @@ class MatiereRepository
         return MatiereResource::collection($matieres);
     }
 
-    public function show(int $id): ?Matiere
+     /**
+     * Récupérer une matière par son id
+     *
+     * @param [type] $id
+     * @return MatiereResource
+     */
+    public function show($id)
     {
-        return Matiere::with($this->relations())->find($id);
+        $matiere = Matiere::where('id', $id)->first();
+        return MatiereResource::make($matiere);
     }
 
     /**
@@ -52,23 +59,10 @@ class MatiereRepository
     {
         /** @var Matiere|null $matiere */
         $matiere = Matiere::find($id);
-        if (!$matiere) {
-            return false;
-        }
-
-        if (isset($data['code'])) {
-            $exists = Matiere::where('code', $data['code'])->where('id', '!=', $id)->exists();
-            if ($exists) {
-                return false;
-            }
-        }
-
         $matiere->fill($data);
-
         if ($matiere->save()) {
-            return $matiere->fresh()->load($this->relations());
+            return $matiere;
         }
-
         return false;
     }
 
@@ -79,7 +73,6 @@ class MatiereRepository
         if (!$matiere) {
             return false;
         }
-
         $matiere->enseignants()->detach();
         return $matiere->delete();
     }

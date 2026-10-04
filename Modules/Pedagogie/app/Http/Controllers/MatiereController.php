@@ -40,19 +40,14 @@ class MatiereController extends CoreController
     }
 
     /**
-     * Afficher un élève
+     * Afficher une matière
      *
-     * @param [type] $code
+     * @param [type] $id
      * @return MatiereResource
      */
-    public function show(int $id): JsonResponse
+    public function show($id)
     {
-        $matiere = $this->repository->show($id);
-        if (!$matiere) {
-            return $this->returnError('Matière introuvable');
-        }
-
-        return $this->returnSuccess('Matière récupérée avec succès', $matiere);
+        return $this->repository->show($id);
     }
 
     /**
@@ -71,44 +66,63 @@ class MatiereController extends CoreController
         return $this->returnSuccess('Matière créée avec succès', $matiere);
     }
 
+    /**
+     * Mise à jour d'une matière
+     *
+     * @param MatiereRequest $request
+     * @param [type] $id
+     * @return JsonResponse
+     */
     public function update(MatiereRequest $request, int $id): JsonResponse
     {
         $data = $request->validated();
-        $res = $this->repository->update($data, $id);
-
-        if (!$res) {
+        $matiere = $this->repository->update($data, $id);
+        if (!$matiere) {
             return $this->returnError('Erreur lors de la mise à jour de la matière.');
         }
-
-        return $this->returnSuccess('Matière mise à jour avec succès', $res);
+        return $this->returnSuccess('Matière mise à jour avec succès', $matiere);
     }
 
+    /**
+     * Suppression d'une matière
+     *
+     * @param [type] $id
+     * @return JsonResponse
+     */
     public function destroy(int $id): JsonResponse
     {
-        $res = $this->repository->destroy($id);
-
-        if (!$res) {
+        $matiere = $this->repository->destroy($id);
+        if (!$matiere) {
             return $this->returnError('Impossible de supprimer cette matière.');
         }
-
         return $this->returnSuccess('Matière supprimée avec succès');
     }
 
+    
+    /**
+     * Liste enseignants par matière
+     *
+     * @return void
+     */
     public function enseignants(int $id): JsonResponse
     {
         $enseignants = $this->repository->enseignants($id);
         return $this->returnSuccess('Liste des enseignants de la matière', $enseignants);
     }
 
+    
+    /**
+     * Assigner ensignant matière
+     *
+     * @return void
+     */
     public function assignerEnseignants(MatiereRequest $request, int $id): JsonResponse
     {
         $enseignants = $request->input('enseignants', []);
         $res = $this->repository->assignerEnseignants($id, $enseignants);
-
         if (!$res) {
             return $this->returnError('Affectation impossible.');
         }
-
         return $this->returnSuccess('Affectation enregistrée avec succès', $this->repository->enseignants($id));
     }
 }
