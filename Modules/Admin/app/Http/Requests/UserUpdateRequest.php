@@ -18,10 +18,11 @@ class UserUpdateRequest extends FormRequest
             'email'=> [
                 'required',
                 'email',
-                Rule::unique('users')->ignore($this->user)
+                Rule::unique('users')->ignore($this->route('id') ?? $this->route('user'))
             ],
-            'role_id'=> 'required|exists:roles,id',
+            'role_id'=> ['sometimes', 'nullable', 'exists:roles,id'],
             'status'=> 'required|in:active,inactive',
+            'specialite_id'=> ['sometimes', 'nullable', 'integer', 'exists:specialites,id'],
         ];
     }
 

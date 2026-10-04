@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Pedagogie\Http\Controllers\AffectationEnseignantController;
 use Modules\Pedagogie\Http\Controllers\ClasseController;
 use Modules\Pedagogie\Http\Controllers\CycleController;
 use Modules\Pedagogie\Http\Controllers\EleveController;
+use Modules\Pedagogie\Http\Controllers\MatiereController;
 use Modules\Pedagogie\Http\Controllers\ParentController;
 use Modules\Pedagogie\Http\Controllers\SerieController;
 
@@ -55,5 +57,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/{id}', [SerieController::class, 'show'])->name('serie.show');
         Route::put('/{id}', [SerieController::class, 'update'])->name('serie.update');
         Route::delete('/{id}', [SerieController::class, 'destroy'])->name('serie.destroy');
+    });
+
+    Route::prefix('matiere')->group(function () {
+        Route::get('/', [MatiereController::class, 'paginate'])->name('matiere.index');
+        Route::get('/liste', [MatiereController::class, 'list'])->name('matiere.list');
+        Route::post('/', [MatiereController::class, 'store'])->name('matiere.store');
+        Route::get('/{id}', [MatiereController::class, 'show'])->name('matiere.show');
+        Route::put('/{id}', [MatiereController::class, 'update'])->name('matiere.update');
+        Route::delete('/{id}', [MatiereController::class, 'destroy'])->name('matiere.destroy');
+        Route::get('/{id}/enseignants', [MatiereController::class, 'enseignants'])->name('matiere.enseignants');
+        Route::post('/{id}/enseignants', [MatiereController::class, 'assignerEnseignants'])->name('matiere.assigner.enseignants');
+    });
+
+    Route::prefix('affectation-enseignant')->group(function () {
+        Route::get('/enseignant/{enseignantId}/matieres', [AffectationEnseignantController::class, 'matieresParEnseignant'])->name('affectation.enseignant.matieres');
+        Route::post('/enseignant/{enseignantId}/matieres', [AffectationEnseignantController::class, 'assignerMatieresAEnseignant'])->name('affectation.enseignant.assigner');
+        Route::get('/matiere/{matiereId}/enseignants', [AffectationEnseignantController::class, 'enseignantsParMatiere'])->name('affectation.matiere.enseignants');
+        Route::post('/matiere/{matiereId}/enseignants', [AffectationEnseignantController::class, 'assignerEnseignantsAMatiere'])->name('affectation.matiere.assigner');
     });
 });

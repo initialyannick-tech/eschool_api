@@ -14,6 +14,7 @@ class PedagogieDatabaseSeeder extends Seeder
          $this->call([
              CycleSeeder::class,
              SerieSeeder::class,
+             MatiereSeeder::class,
          ]);
     }
 }
