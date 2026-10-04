@@ -10,25 +10,17 @@ class AffectationEnseignantRepository
     public function matieresParEnseignant(int $enseignantId)
     {
         /** @var User $enseignant */
-        $enseignant = User::where('id', $enseignantId)
-            ->where('role_id', User::ENSEIGNANT)
-            ->firstOrFail();
-
+        $enseignant = User::where('id', $enseignantId) ->where('role_id', User::ENSEIGNANT) ->firstOrFail();
         return $enseignant->matieres()->orderBy('libelle')->get();
     }
 
     public function syncMatieresParEnseignant(int $enseignantId, array $matiereIds): array
     {
         /** @var User $enseignant */
-        $enseignant = User::where('id', $enseignantId)
-            ->where('role_id', User::ENSEIGNANT)
-            ->firstOrFail();
-
+        $enseignant = User::where('id', $enseignantId)->where('role_id', User::ENSEIGNANT)->firstOrFail();
         $matiereIds = array_map('intval', $matiereIds);
         $validIds = Matiere::whereIn('id', $matiereIds)->pluck('id')->toArray();
-
         $enseignant->matieres()->sync($validIds);
-
         return $enseignant->fresh()->matieres()->orderBy('libelle')->get()->toArray();
     }
 

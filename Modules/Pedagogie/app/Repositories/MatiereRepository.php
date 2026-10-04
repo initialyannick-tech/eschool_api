@@ -31,24 +31,22 @@ class MatiereRepository
         return Matiere::with($this->relations())->find($id);
     }
 
-    public function store(array $data)
+    /**
+     * Création d'une matière
+     *
+     * @param [type] $data
+     * @return false|Matiere
+     */
+    public function store($data)
     {
-        $data['actif'] = $data['actif'] ?? true;
-
-        if (Matiere::where('code', $data['code'])->exists()) {
-            return false;
-        }
-
-        /** @var Matiere $matiere */
-        $matiere = new Matiere();
+        $matiere = new Matiere;
         $matiere->fill($data);
-
-        if ($matiere->save()) {
-            return $matiere->fresh()->load($this->relations());
+        if($matiere->save()){
+            return $matiere;
         }
-
         return false;
     }
+
 
     public function update(array $data, int $id)
     {

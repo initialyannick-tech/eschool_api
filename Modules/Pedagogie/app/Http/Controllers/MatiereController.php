@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Modules\Core\Http\Controllers\CoreController;
 use Modules\Pedagogie\Http\Requests\MatiereRequest;
 use Modules\Pedagogie\Repositories\MatiereRepository;
+use Modules\Pedagogie\Transformers\MatiereResource;
 
 class MatiereController extends CoreController
 {
@@ -17,16 +18,33 @@ class MatiereController extends CoreController
         $this->repository = $repository;
     }
 
+
+    /**
+     * Liste matière sans pagination
+     *
+     * @return void
+     */
     public function list(): AnonymousResourceCollection
     {
         return $this->repository->index();
     }
 
+    /**
+     * Liste des matières
+     *
+     * @return AnonymousResourceCollection
+     */
     public function paginate(): AnonymousResourceCollection
     {
         return $this->repository->paginate();
     }
 
+    /**
+     * Afficher un élève
+     *
+     * @param [type] $code
+     * @return MatiereResource
+     */
     public function show(int $id): JsonResponse
     {
         $matiere = $this->repository->show($id);
@@ -37,16 +55,20 @@ class MatiereController extends CoreController
         return $this->returnSuccess('Matière récupérée avec succès', $matiere);
     }
 
+    /**
+     * Création d'une matière
+     *
+     * @param MatiereRequest $request
+     * @return JsonResponse
+     */
     public function store(MatiereRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $res = $this->repository->store($data);
-
-        if (!$res) {
-            return $this->returnError('Une matière avec ce code existe déjà.');
+        $matiere = $this->repository->store($data);
+        if (!$matiere) {
+            return $this->returnError('Une erreur est survenue lors de la création de la matière.');
         }
-
-        return $this->returnSuccess('Matière créée avec succès', $res);
+        return $this->returnSuccess('Matière créée avec succès', $matiere);
     }
 
     public function update(MatiereRequest $request, int $id): JsonResponse
