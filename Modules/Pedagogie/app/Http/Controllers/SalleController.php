@@ -1,12 +1,12 @@
 <?php
 
-namespace Modules\Pedagogie\app\Http\Controllers;
+namespace Modules\Pedagogie\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
-use Modules\Pedagogie\app\Http\Requests\SalleRequest;
-use Modules\Pedagogie\app\Repositories\SalleRepository;
-use Modules\Pedagogie\app\Transformers\SalleResource;
+use Modules\Pedagogie\Http\Requests\SalleRequest;
+use Modules\Pedagogie\Repositories\SalleRepository;
+use Modules\Pedagogie\Transformers\SalleResource;
 
 class SalleController extends Controller
 {

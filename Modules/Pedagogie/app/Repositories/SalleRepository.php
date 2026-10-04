@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Pedagogie\app\Repositories;
+namespace Modules\Pedagogie\Repositories;
 
-use Modules\Pedagogie\app\Models\Salle;
+use Modules\Pedagogie\Models\Salle;
 use Illuminate\Database\Eloquent\Collection;
 
 class SalleRepository

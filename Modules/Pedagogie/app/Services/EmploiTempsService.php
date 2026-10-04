@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Pedagogie\app\Services;
+namespace Modules\Pedagogie\Services;
 
-use Modules\Pedagogie\app\Models\EmploiDuTemps;
+use Modules\Pedagogie\Models\EmploiDuTemps;
 
 class EmploiTempsService
 {

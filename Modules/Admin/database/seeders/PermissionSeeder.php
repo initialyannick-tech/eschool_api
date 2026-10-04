@@ -314,6 +314,10 @@ class PermissionSeeder extends Seeder
                 "libelle" => "Gestion des salles",
                 "code" => "salle.management",
             ],
+            [
+                "libelle" => "Consulter les salles",
+                "code" => "salle.consulter",
+            ],
 
             /*
             |--------------------------------------------------------------------------

@@ -1,14 +1,14 @@
 <?php
 
-namespace Modules\Pedagogie\app\Http\Controllers;
+namespace Modules\Pedagogie\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Modules\Pedagogie\app\Http\Requests\EmploiDuTempsRequest;
-use Modules\Pedagogie\app\Repositories\EmploiDuTempsRepository;
-use Modules\Pedagogie\app\Services\EmploiTempsService;
-use Modules\Pedagogie\app\Transformers\EmploiDuTempsResource;
+use Modules\Pedagogie\Http\Requests\EmploiDuTempsRequest;
+use Modules\Pedagogie\Repositories\EmploiDuTempsRepository;
+use Modules\Pedagogie\Services\EmploiTempsService;
+use Modules\Pedagogie\Transformers\EmploiDuTempsResource;
 
 class EmploiDuTempsController extends Controller
 {
@@ -91,7 +91,7 @@ class EmploiDuTempsController extends Controller
         return response()->json([
             'status'  => 'success',
             'message' => 'Séance ajoutée avec succès.',
-            'data'    => new EmploiDuTempsResource($emploi->load(['classe', 'salle'])),
+            'data'    => new EmploiDuTempsResource($emploi->load(['classe', 'matiere', 'enseignant', 'salle'])),
         ], 201);
     }
 
@@ -127,7 +127,7 @@ class EmploiDuTempsController extends Controller
         return response()->json([
             'status'  => 'success',
             'message' => 'Séance mise à jour avec succès.',
-            'data'    => new EmploiDuTempsResource($emploi->fresh(['classe', 'salle'])),
+            'data'    => new EmploiDuTempsResource($emploi->fresh(['classe', 'matiere', 'enseignant', 'salle'])),
         ]);
     }
 

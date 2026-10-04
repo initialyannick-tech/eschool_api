@@ -50,6 +50,7 @@ class RoleSeeder extends Seeder
             ],
         ];
         DB::table('specialites')->insert($specialities);
+
         /*
         |--------------------------------------------------------------------------
         | RÔLES
@@ -93,6 +94,7 @@ class RoleSeeder extends Seeder
             ],
         );
         DB::table('roles')->insert($roles);
+
         /*
         |--------------------------------------------------------------------------
         | RÉCUPÉRATION DES RÔLES
@@ -320,7 +322,7 @@ class RoleSeeder extends Seeder
         $enseignant->permissions()->attach([
             $classeConsulterPermission->id,
             $matiereConsulterPermission->id,
-            $emploiTempsPermission->id,
+            $emploiTempsConsulterPermission->id,
             $cahierTextePermission->id,
             $evaluationPermission->id,
             $notePermission->id,
@@ -386,7 +388,7 @@ class RoleSeeder extends Seeder
             $eleveConsulterPermission->id,
             $classeConsulterPermission->id,
             $matiereConsulterPermission->id,
-            $emploiTempsPermission->id,
+            $emploiTempsConsulterPermission->id,
             $noteConsulterPermission->id,
             $bulletinConsulterPermission->id,
             $absenceConsulterPermission->id,

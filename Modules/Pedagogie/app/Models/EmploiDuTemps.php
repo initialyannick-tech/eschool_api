@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\Pedagogie\app\Models;
+namespace Modules\Pedagogie\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\User; // Ajustez le namespace selon l'emplacement du modèle User
+use Modules\Admin\Models\User;
 
 class EmploiDuTemps extends Model
 {
@@ -34,6 +34,11 @@ class EmploiDuTemps extends Model
     public function classe(): BelongsTo
     {
         return $this->belongsTo(Classe::class, 'classe_id');
+    }
+
+    public function matiere(): BelongsTo
+    {
+        return $this->belongsTo(Matiere::class, 'matiere_id');
     }
 
     public function enseignant(): BelongsTo

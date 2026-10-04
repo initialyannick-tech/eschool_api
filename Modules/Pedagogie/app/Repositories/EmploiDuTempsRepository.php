@@ -1,15 +1,15 @@
 <?php
 
-namespace Modules\Pedagogie\app\Repositories;
+namespace Modules\Pedagogie\Repositories;
 
-use Modules\Pedagogie\app\Models\EmploiDuTemps;
+use Modules\Pedagogie\Models\EmploiDuTemps;
 use Illuminate\Database\Eloquent\Collection;
 
 class EmploiDuTempsRepository
 {
     public function getByClasse(int $classeId, int $anneeScolaireId): Collection
     {
-        return EmploiDuTemps::with(['classe', 'salle'])
+        return EmploiDuTemps::with(['classe', 'matiere', 'enseignant', 'salle'])
             ->where('classe_id', $classeId)
             ->where('annee_scolaire_id', $anneeScolaireId)
             ->orderBy('jour_semaine')
@@ -19,7 +19,7 @@ class EmploiDuTempsRepository
 
     public function getByEnseignant(int $enseignantId, int $anneeScolaireId): Collection
     {
-        return EmploiDuTemps::with(['classe', 'salle'])
+        return EmploiDuTemps::with(['classe', 'matiere', 'enseignant', 'salle'])
             ->where('enseignant_id', $enseignantId)
             ->where('annee_scolaire_id', $anneeScolaireId)
             ->orderBy('jour_semaine')
@@ -29,7 +29,7 @@ class EmploiDuTempsRepository
 
     public function findById(int $id): ?EmploiDuTemps
     {
-        return EmploiDuTemps::with(['classe', 'salle'])->find($id);
+        return EmploiDuTemps::with(['classe', 'matiere', 'enseignant', 'salle'])->find($id);
     }
 
     public function create(array $data): EmploiDuTemps

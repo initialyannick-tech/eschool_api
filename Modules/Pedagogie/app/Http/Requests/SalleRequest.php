@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Pedagogie\app\Http\Requests;
+namespace Modules\Pedagogie\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -13,7 +13,7 @@ class SalleRequest extends FormRequest
 
     public function rules(): array
     {
-        $salleId = $this->route('salle') ? $this->route('salle')->id : null;
+        $salleId = $this->route('id');
 
         return [
             'code'     => 'required|string|max:50|unique:salles,code,' . $salleId,

@@ -3,7 +3,7 @@
 namespace Modules\Pedagogie\database\seeders;
 
 use Illuminate\Database\Seeder;
-use Modules\Pedagogie\app\Models\Salle;
+use Modules\Pedagogie\Models\Salle;
 
 class SalleTableSeeder extends Seeder
 {
