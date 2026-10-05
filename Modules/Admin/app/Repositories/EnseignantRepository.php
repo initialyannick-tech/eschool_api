@@ -44,14 +44,9 @@ class EnseignantRepository
     {
         $data['role_id'] = User::ENSEIGNANT;
         $data['status'] = User::ACTIVE;
-        $data['password'] = $data['password'] ?? 'azerty';
-        $data['password_changed'] = $data['password_changed'] ?? User::ACTIVE;
+        $user = app(UserRepository::class)->store($data);
 
-        /** @var User $user */
-        $user = new User();
-        $user->fill($data);
-
-        if ($user->save()) {
+        if ($user instanceof User) {
             return $user->fresh(['specialite', 'matieres']);
         }
 

@@ -26,43 +26,51 @@ class MatiereRepository
         return MatiereResource::collection($matieres);
     }
 
-     /**
-     * Récupérer une matière par son id
-     *
-     * @param [type] $id
-     * @return MatiereResource
-     */
-    public function show($id)
+    public function show(int $id): ?Matiere
     {
-        $matiere = Matiere::where('id', $id)->first();
-        return MatiereResource::make($matiere);
+        return Matiere::with($this->relations())->find($id);
     }
 
-    /**
-     * Création d'une matière
-     *
-     * @param [type] $data
-     * @return false|Matiere
-     */
-    public function store($data)
+    public function store(array $data)
     {
-        $matiere = new Matiere;
-        $matiere->fill($data);
-        if($matiere->save()){
-            return $matiere;
+        $data['actif'] = $data['actif'] ?? true;
+
+        if (Matiere::where('code', $data['code'])->exists()) {
+            return false;
         }
+
+        /** @var Matiere $matiere */
+        $matiere = new Matiere();
+        $matiere->fill($data);
+
+        if ($matiere->save()) {
+            return $matiere->fresh()->load($this->relations());
+        }
+
         return false;
     }
-
 
     public function update(array $data, int $id)
     {
         /** @var Matiere|null $matiere */
         $matiere = Matiere::find($id);
-        $matiere->fill($data);
-        if ($matiere->save()) {
-            return $matiere;
+        if (!$matiere) {
+            return false;
         }
+
+        if (isset($data['code'])) {
+            $exists = Matiere::where('code', $data['code'])->where('id', '!=', $id)->exists();
+            if ($exists) {
+                return false;
+            }
+        }
+
+        $matiere->fill($data);
+
+        if ($matiere->save()) {
+            return $matiere->fresh()->load($this->relations());
+        }
+
         return false;
     }
 
@@ -73,6 +81,7 @@ class MatiereRepository
         if (!$matiere) {
             return false;
         }
+
         $matiere->enseignants()->detach();
         return $matiere->delete();
     }

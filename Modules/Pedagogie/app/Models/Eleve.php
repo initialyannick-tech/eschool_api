@@ -4,7 +4,9 @@ namespace Modules\Pedagogie\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Modules\Admin\Models\User;
 use Illuminate\Support\Str;
 
 
@@ -27,6 +29,7 @@ class Eleve extends Model
         'adresse',
         'telephone',
         'email',
+        'user_id',
         'photo',
         'situation_particuliere',
         'statut',
@@ -35,6 +38,11 @@ class Eleve extends Model
     protected $casts = [
         'date_naissance' => 'date',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     protected static function boot()
     {

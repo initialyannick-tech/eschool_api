@@ -7,8 +7,10 @@ namespace Modules\Pedagogie\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Modules\Core\Http\Controllers\CoreController;
+use Modules\Pedagogie\Http\Requests\ParentDossierRequest;
 use Modules\Pedagogie\Http\Requests\ParentRequest;
 use Modules\Pedagogie\Repositories\ParentRepository;
+use Modules\Pedagogie\Transformers\EleveResource;
 use Modules\Pedagogie\Transformers\ParentResource;
 
 class ParentController extends CoreController
@@ -35,6 +37,11 @@ class ParentController extends CoreController
         return $this->repository->paginate();
     }
 
+    public function search(string $keyword): AnonymousResourceCollection
+    {
+        return $this->repository->search($keyword);
+    }
+
     /**
      * Afficher un parent
      */
@@ -49,7 +56,17 @@ class ParentController extends CoreController
     public function store(ParentRequest $request): JsonResponse {
 
         $parent = $this->repository->store($request->validated());
-        return $this->returnSuccess('Parent/tuteur créé avec succès.', new ParentResource($parent->load('eleves')));
+        return $this->returnSuccess('Parent/tuteur créé avec succès.', new ParentResource($parent->load(['eleves', 'user'])));
+    }
+
+    public function storeDossier(ParentDossierRequest $request): JsonResponse
+    {
+        $dossier = $this->repository->storeDossier($request->validated());
+
+        return $this->returnSuccess('Dossier parent et élève créé avec succès.', [
+            'parent' => new ParentResource($dossier['parent']),
+            'eleve' => new EleveResource($dossier['eleve']),
+        ]);
     }
 
     /**
