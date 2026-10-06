@@ -50,6 +50,7 @@ class RoleSeeder extends Seeder
             ],
         ];
         DB::table('specialites')->insert($specialities);
+
         /*
         |--------------------------------------------------------------------------
         | RÔLES
@@ -93,6 +94,7 @@ class RoleSeeder extends Seeder
             ],
         );
         DB::table('roles')->insert($roles);
+
         /*
         |--------------------------------------------------------------------------
         | RÉCUPÉRATION DES RÔLES
@@ -162,7 +164,12 @@ class RoleSeeder extends Seeder
         $bulletinValiderPermission = Permission::where('code', 'bulletin.valider')->first();
 
         // Emploi du temps
-        $emploiTempsPermission = Permission::where('code', 'emploi_temps.consulter')->first();
+        $emploiTempsManagementPermission = Permission::where('code', 'emploi_temps.management')->first();
+        $emploiTempsConsulterPermission = Permission::where('code', 'emploi_temps.consulter')->first();
+
+        // Salles
+        $sallePermission = Permission::where('code', 'salle.management')->first();
+        $salleConsulterPermission = Permission::where('code', 'salle.consulter')->first();
 
         // Cahier de textes
         $cahierTextePermission = Permission::where('code', 'cahier_texte.management')->first();
@@ -274,6 +281,10 @@ class RoleSeeder extends Seeder
             $statistiquePermission->id,
             $rapportPermission->id,
             $rapportExporterPermission->id,
+            $sallePermission->id,
+            $salleConsulterPermission->id,
+            $emploiTempsManagementPermission->id,
+            $emploiTempsConsulterPermission->id,
         ]);
 
         // Administration
@@ -301,13 +312,17 @@ class RoleSeeder extends Seeder
             $statistiquePermission->id,
             $rapportPermission->id,
             $rapportExporterPermission->id,
+            $sallePermission->id,
+            $salleConsulterPermission->id,
+            $emploiTempsManagementPermission->id,
+            $emploiTempsConsulterPermission->id,
         ]);
 
         // Enseignant
         $enseignant->permissions()->attach([
             $classeConsulterPermission->id,
             $matiereConsulterPermission->id,
-            $emploiTempsPermission->id,
+            $emploiTempsConsulterPermission->id,
             $cahierTextePermission->id,
             $evaluationPermission->id,
             $notePermission->id,
@@ -373,7 +388,7 @@ class RoleSeeder extends Seeder
             $eleveConsulterPermission->id,
             $classeConsulterPermission->id,
             $matiereConsulterPermission->id,
-            $emploiTempsPermission->id,
+            $emploiTempsConsulterPermission->id,
             $noteConsulterPermission->id,
             $bulletinConsulterPermission->id,
             $absenceConsulterPermission->id,

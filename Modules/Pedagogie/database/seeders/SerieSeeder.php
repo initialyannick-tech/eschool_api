@@ -83,5 +83,15 @@ class SerieSeeder extends Seeder
                 'actif' => true,
             ]
         );
+        Serie::updateOrCreate(
+            [
+                'code' => 'ATR'
+            ],
+            [
+                'libelle' => 'Autre',
+                'description' => 'Série autre pour 6e',
+                'actif' => true,
+            ]
+        );
     }
 }
