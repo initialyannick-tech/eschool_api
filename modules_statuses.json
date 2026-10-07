@@ -2,5 +2,6 @@
     "Admin": true,
     "Core": true,
     "Parametre": true,
-    "Pedagogie": true
+    "Pedagogie": true,
+    "Communication": true
 }

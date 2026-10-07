@@ -52,7 +52,7 @@ class EleveController extends CoreController
         if(!$eleve){
             return $this->returnError('Une erreur est survenue lors de la création d\'un élève');
         } else {
-            return $this->returnSuccess('Elève créé avec succès', $eleve);
+            return $this->returnSuccess('Elève créé avec succès', new EleveResource($eleve));
         }
     }
 
@@ -95,7 +95,7 @@ class EleveController extends CoreController
         if(!$eleve){
             return $this->returnError('Une erreur est survenue lors de la mise à jour de l\'élève');
         } else {
-            return $this->returnSuccess('Elève mis à jour avec succès', $eleve);
+            return $this->returnSuccess('Elève mis à jour avec succès', new EleveResource($eleve));
         }
     }
 

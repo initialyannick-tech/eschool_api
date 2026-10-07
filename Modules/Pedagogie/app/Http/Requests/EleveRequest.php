@@ -24,6 +24,10 @@ class EleveRequest extends FormRequest
             'photo' => ['nullable', 'string', 'max:255'],
             'situation_particuliere' => ['nullable', 'string'],
             'statut' => ['nullable', 'in:preinscrit,inscrit,reinscrit,transfere,suspendu,exclu,orienté,reorienté'],
+            'parent_id' => ['sometimes', 'nullable', 'integer', 'exists:parents,id'],
+            'relation' => ['required_with:parent_id', 'nullable', 'string', 'max:50'],
+            'responsable_principal' => ['sometimes', 'boolean'],
+            'responsable_financier' => ['sometimes', 'boolean'],
         ];
     }
 

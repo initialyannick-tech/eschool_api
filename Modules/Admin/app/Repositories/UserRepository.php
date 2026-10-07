@@ -3,6 +3,7 @@
 namespace Modules\Admin\Repositories;
 
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Modules\Admin\Emails\NewUserMail;
@@ -41,11 +42,7 @@ class UserRepository
 
     public function store(array $data)
     {
-        $roleId = $data['role_id'] ?? null;
-        $isTeacherRole = (string) $roleId === (string) User::ENSEIGNANT;
-
-        $password = $isTeacherRole ? 'azerty' : $this->generatePassword();
-
+        $password = $this->generatePassword();
         $data['password'] = $password;
         $data['status'] = $data['status'] ?? User::ACTIVE;
         $data['password_changed'] = $data['password_changed'] ?? User::ACTIVE;
@@ -54,9 +51,9 @@ class UserRepository
         $user = new User;
         $user->fill($data);
         if ($user->save()) {
-            if (!$isTeacherRole) {
+            DB::afterCommit(function () use ($user, $password): void {
                 Mail::to($user->email)->send(new NewUserMail($user, $password));
-            }
+            });
             return $user;
         }
         return false;

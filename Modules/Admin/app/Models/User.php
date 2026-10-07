@@ -3,17 +3,22 @@
 namespace Modules\Admin\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\Communication\Models\Conversation;
+use Modules\Pedagogie\Models\Eleve;
 use Modules\Pedagogie\Models\Matiere;
-
+use Modules\Pedagogie\Models\ParentModel;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table="users";
+    protected $table = 'users';
 
     /**
      * The attributes that are mass assignable.
@@ -32,7 +37,9 @@ class User extends Authenticatable
     ];
 
     const ACTIVE = 'active';
+
     const INACTIVE = 'inactive';
+
     const ENSEIGNANT = '4';
 
     protected static function boot()
@@ -55,20 +62,35 @@ class User extends Authenticatable
         });
     }
 
-
-    public function role(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function specialite(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function specialite(): BelongsTo
     {
         return $this->belongsTo(Specialite::class);
     }
 
-    public function matieres(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function matieres(): BelongsToMany
     {
         return $this->belongsToMany(Matiere::class, 'enseignant_matiere', 'user_id', 'matiere_id');
     }
 
+    public function parentProfile(): HasOne
+    {
+        return $this->hasOne(ParentModel::class, 'user_id');
+    }
+
+    public function eleveProfile(): HasOne
+    {
+        return $this->hasOne(Eleve::class, 'user_id');
+    }
+
+    public function conversations(): BelongsToMany
+    {
+        return $this->belongsToMany(Conversation::class, 'conversation_participants')
+            ->withPivot(['last_read_at', 'archived_at'])
+            ->withTimestamps();
+    }
 }

@@ -17,6 +17,7 @@ class ParentRequest extends FormRequest
             'telephone' => ['required','string','max:30',],
             'telephone_secondaire' => ['nullable','string','max:30',],
             'email' => ['nullable','email','max:255',],
+            'user_id' => ['nullable','integer','exists:users,id'],
             'adresse' => ['nullable','string','max:255',],
             'profession' => ['nullable','string','max:255',],
             'lieu_travail' => ['nullable','string','max:255',],

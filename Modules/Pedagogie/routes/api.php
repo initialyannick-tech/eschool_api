@@ -25,6 +25,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('parents')->group(function () {
         Route::get('/', [ParentController::class, 'paginate'])->name('parents.index');
         Route::get('/liste', [ParentController::class, 'list'])->name('parents.list');
+        Route::get('/search/{keyword}', [ParentController::class, 'search'])->name('parents.search');
+        Route::post('/dossier', [ParentController::class, 'storeDossier'])->name('parents.store-dossier');
         Route::post('/', [ParentController::class, 'store'])->name('parents.store');
         Route::get('/{parent}/eleves', [ParentController::class, 'eleves'])->name('parents.eleves');
         Route::get('/{parent}', [ParentController::class, 'show'])->name('parents.show');
