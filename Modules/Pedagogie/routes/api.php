@@ -23,15 +23,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::prefix('parents')->group(function () {
-        Route::get('/', [ParentController::class, 'paginate'])->name('parents.index');
-        Route::get('/liste', [ParentController::class, 'list'])->name('parents.list');
-        Route::get('/search/{keyword}', [ParentController::class, 'search'])->name('parents.search');
-        Route::post('/dossier', [ParentController::class, 'storeDossier'])->name('parents.store-dossier');
         Route::post('/', [ParentController::class, 'store'])->name('parents.store');
-        Route::get('/{parent}/eleves', [ParentController::class, 'eleves'])->name('parents.eleves');
-        Route::get('/{parent}', [ParentController::class, 'show'])->name('parents.show');
-        Route::put('/{parent}', [ParentController::class, 'update'])->name('parents.update');
-        Route::delete('/{parent}', [ParentController::class, 'destroy'])->name('parents.destroy');
+        Route::get('/liste', [ParentController::class, 'list'])->name('parents.liste');
+        Route::get('search/{keyword}', [ParentController::class, 'search'])->name('parents.search');
+        Route::get('/', [ParentController::class, 'index'])->name('parents.index');
+        Route::get('/{parents}', [ParentController::class, 'show'])->name('parents.show');
+        Route::put('/{parents}', [ParentController::class, 'update'])->name('parents.update');
+        Route::delete('/{parents}', [ParentController::class, 'destroy'])->name('parents.destroy');
     });
 
     Route::prefix('eleves')->group(function () {

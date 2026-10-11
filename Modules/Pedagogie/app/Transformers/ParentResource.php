@@ -14,7 +14,6 @@ class ParentResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
             'nom' => $this->nom,
             'prenom' => $this->prenom,
             'telephone' => $this->telephone,
@@ -22,13 +21,7 @@ class ParentResource extends JsonResource
             'email' => $this->email,
             'adresse' => $this->adresse,
             'profession'=> $this->profession,
-            'lieu_travail'=> $this->lieu_travail,
             'statut' => $this->statut,
-            'compte' => $this->whenLoaded('user', fn () => $this->user ? [
-                'id' => $this->user->id,
-                'email' => $this->user->email,
-                'role_id' => $this->user->role_id,
-            ] : null),
             'nombre_enfants' => $this->whenLoaded('eleves',fn () => $this->eleves->count()),
             'eleves' => $this->whenLoaded(
                 'eleves',
@@ -44,14 +37,6 @@ class ParentResource extends JsonResource
                         'nationalite' => $eleve->nationalite,
                         'photo' => $eleve->photo,
                         'statut' => $eleve->statut,
-
-                        'relation' => $eleve->pivot->relation ?? null,
-                        'responsable_principal' => (bool) (
-                            $eleve->pivot->responsable_principal ?? false
-                        ),
-                        'responsable_financier' => (bool) (
-                            $eleve->pivot->responsable_financier ?? false
-                        ),
                     ];
                 })
             ),

@@ -7,10 +7,8 @@ namespace Modules\Pedagogie\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Modules\Core\Http\Controllers\CoreController;
-use Modules\Pedagogie\Http\Requests\ParentDossierRequest;
 use Modules\Pedagogie\Http\Requests\ParentRequest;
 use Modules\Pedagogie\Repositories\ParentRepository;
-use Modules\Pedagogie\Transformers\EleveResource;
 use Modules\Pedagogie\Transformers\ParentResource;
 
 class ParentController extends CoreController
@@ -22,73 +20,99 @@ class ParentController extends CoreController
     }
 
     /**
-     * Liste complète des parents
+     * Liste parents sans pagination
+     *
+     * @return void
      */
-    public function list(): AnonymousResourceCollection
-    {
+    public function list() {
         return $this->repository->index();
     }
 
     /**
-     * Liste paginée des parents
+     * Liste des parents
+     *
+     * @return AnonymousResourceCollection
      */
-    public function paginate(): AnonymousResourceCollection
+    public function index(): AnonymousResourceCollection
     {
         return $this->repository->paginate();
     }
 
-    public function search(string $keyword): AnonymousResourceCollection
+
+    /**
+     * Création d'un parents
+     *
+     * @param ParentRequest $request
+     * @return JsonResponse
+     */
+    public function store(ParentRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $parents = $this->repository->store($data);
+        if(!$parents){
+            return $this->returnError('Une erreur est survenue lors de la création d\'un parent');
+        } else {
+            return $this->returnSuccess('Parent créé avec succès', $parents);
+        }
+    }
+
+
+    /**
+     * Afficher un parent
+     *
+     * @param [type] $code
+     * @return ParentResource
+     */
+    public function show($code)
+    {
+        return $this->repository->show($code);
+    }
+
+
+    /**
+     * Rechercher un parent
+     *
+     * @param [type] $keyword
+     * @return AnonymousResourceCollection
+     */
+    public function search($keyword): AnonymousResourceCollection
     {
         return $this->repository->search($keyword);
     }
 
+
     /**
-     * Afficher un parent
+     * Mise à jour d'un parent
+     *
+     * @param ParentRequest $request
+     * @param [type] $id
+     * @return JsonResponse
      */
-    public function show(int $id): ParentResource
+    public function update(ParentRequest $request, $id): JsonResponse
     {
-        return $this->repository->show($id);
+        $data = $request->validated();
+        $parents = $this->repository->update($id, $data);
+        if(!$parents){
+            return $this->returnError('Une erreur est survenue lors de la mise à jour du parent');
+        } else {
+            return $this->returnSuccess('Parent mis à jour avec succès', $parents);
+        }
     }
+
 
     /**
-     * Créer un parent
+     * Suppression d'un parent
+     *
+     * @param [type] $id
+     * @return JsonResponse
      */
-    public function store(ParentRequest $request): JsonResponse {
-
-        $parent = $this->repository->store($request->validated());
-        return $this->returnSuccess('Parent/tuteur créé avec succès.', new ParentResource($parent->load(['eleves', 'user'])));
-    }
-
-    public function storeDossier(ParentDossierRequest $request): JsonResponse
+    public function destroy($id): JsonResponse
     {
-        $dossier = $this->repository->storeDossier($request->validated());
-
-        return $this->returnSuccess('Dossier parent et élève créé avec succès.', [
-            'parent' => new ParentResource($dossier['parent']),
-            'eleve' => new EleveResource($dossier['eleve']),
-        ]);
-    }
-
-    /**
-     * Modifier un parent
-     */
-    public function update(ParentRequest $request, int $id): JsonResponse {
-        $parent = $this->repository->update($request->validated(), $id);
-        return $this->returnSuccess('Parent/tuteur modifié avec succès.', new ParentResource($parent));
-    }
-
-    /**
-     * Supprimer un parent
-     */
-    public function destroy(int $id): JsonResponse {
-        $this->repository->destroy($id);
-        return $this->returnSuccess('Parent/tuteur supprimé avec succès.');
-    }
-
-    /**
-     * Liste des enfants d'un parent
-     */
-    public function eleves(int $parentId): AnonymousResourceCollection {
-        return $this->repository->eleves($parentId);
+        $res = $this->repository->delete($id);
+        if(!$res){
+            return $this->returnError('Une erreur est survenue lors de la suppression du parent');
+        } else {
+            return $this->returnSuccess('Parent supprimé avec succès');
+        }
     }
 }
