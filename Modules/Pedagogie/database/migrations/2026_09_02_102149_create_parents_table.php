@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('adresse')->nullable();
             $table->string('profession')->nullable();
-            $table->string('lieu_travail')->nullable();
             $table->enum('statut', ['actif','inactif'])->default('actif');
             $table->text('observation')->nullable();
             $table->timestamps();
