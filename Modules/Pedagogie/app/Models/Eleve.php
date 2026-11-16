@@ -5,6 +5,8 @@ namespace Modules\Pedagogie\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Modules\Admin\Models\User;
 use Illuminate\Support\Str;
 
 
@@ -18,6 +20,7 @@ class Eleve extends Model
      */
     protected $fillable = [
         'matricule',
+        'user_id',
         'nom',
         'prenom',
         'sexe',
@@ -72,6 +75,11 @@ class Eleve extends Model
             'responsable_principal',
             'responsable_financier',
         ])->withTimestamps();
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**

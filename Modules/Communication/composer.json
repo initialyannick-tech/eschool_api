@@ -1,0 +1,12 @@
+{
+    "name": "eschool/communication",
+    "description": "Communication module for eSchool",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Modules\\Communication\\": "app/",
+            "Modules\\Communication\\Database\\Factories\\": "database/factories/",
+            "Modules\\Communication\\Database\\Seeders\\": "database/seeders/"
+        }
+    }
+}

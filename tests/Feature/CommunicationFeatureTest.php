@@ -13,6 +13,8 @@ use Modules\Communication\Models\Conversation;
 use Modules\Communication\Models\ConversationMessage;
 use Modules\Communication\Notifications\CommunicationAnnouncement;
 use Modules\Communication\Notifications\InternalMessageReceived;
+use Modules\Pedagogie\Models\Eleve;
+use Modules\Pedagogie\Models\ParentModel;
 
 uses(RefreshDatabase::class);
 
@@ -240,6 +242,31 @@ it('creates a private conversation and notifies its recipient', function () {
     );
 });
 
+it('prevents a user from creating a conversation with themselves', function () {
+    $permission = Permission::create([
+        'libelle' => 'Envoyer un message',
+        'code' => 'message.envoyer',
+    ]);
+    $role = Role::create(['libelle' => 'Enseignant']);
+    $role->permissions()->attach($permission->id);
+    $user = User::create([
+        'nom' => 'Diallo',
+        'prenom' => 'Mamadou',
+        'email' => 'mamadou.diallo@example.com',
+        'password' => 'secret',
+        'role_id' => $role->id,
+    ]);
+
+    $this->actingAs($user, 'sanctum')
+        ->postJson('/api/communication/conversations', [
+            'recipient_id' => $user->id,
+            'body' => 'Message à soi-même.',
+        ])
+        ->assertUnprocessable();
+
+    $this->assertDatabaseCount('conversations', 0);
+});
+
 it('hides a conversation from authenticated users who are not members', function () {
     $sendPermission = Permission::create([
         'libelle' => 'Envoyer un message',
@@ -464,4 +491,46 @@ it('stores attachments privately and restricts downloads to conversation members
     $this->actingAs($outsider, 'sanctum')
         ->get('/api/communication/conversations/'.$conversationId.'/messages/'.$messageId.'/attachment')
         ->assertNotFound();
+});
+
+it('shows a parent the announcements and all linked children in the portal', function () {
+    $role = Role::create(['libelle' => 'Parent']);
+    $parentUser = User::create([
+        'nom' => 'Mabika',
+        'prenom' => 'Aline',
+        'email' => 'aline.mabika@example.com',
+        'password' => 'secret',
+        'role_id' => $role->id,
+    ]);
+    $parent = ParentModel::create([
+        'nom' => 'Mabika',
+        'prenom' => 'Aline',
+        'telephone' => '01234567',
+        'email' => 'aline.mabika@example.com',
+        'user_id' => $parentUser->id,
+    ]);
+    $children = collect([
+        ['nom' => 'Mabika', 'prenom' => 'Nina'],
+        ['nom' => 'Mabika', 'prenom' => 'Noah'],
+    ])->map(fn (array $child): Eleve => Eleve::create([
+        ...$child,
+        'sexe' => 'feminin',
+        'date_naissance' => '2015-05-10',
+        'lieu_naissance' => 'Libreville',
+    ]));
+    $parent->eleves()->attach($children->mapWithKeys(fn (Eleve $child): array => [
+        $child->id => [
+            'relation' => 'Mère',
+            'responsable_principal' => true,
+            'responsable_financier' => false,
+        ],
+    ])->all());
+
+    $this->actingAs($parentUser, 'sanctum')
+        ->getJson('/api/communication/portal')
+        ->assertOk()
+        ->assertJsonPath('data.type', 'parent')
+        ->assertJsonCount(2, 'data.children')
+        ->assertJsonFragment(['prenom' => 'Nina'])
+        ->assertJsonFragment(['prenom' => 'Noah']);
 });
