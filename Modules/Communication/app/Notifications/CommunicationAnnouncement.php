@@ -26,8 +26,8 @@ class CommunicationAnnouncement extends Notification
         return [
             'type' => 'announcement',
             'communication_message_id' => $this->announcement->id,
-            'title' => $this->announcement->title,
-            'message' => $this->announcement->message,
+            'title' => $this->announcement->titre,
+            'message' => $this->announcement->contenu,
             'sender_name' => trim($this->announcement->sender->prenom.' '.$this->announcement->sender->nom),
             'channels' => $this->channels,
         ];
@@ -36,9 +36,9 @@ class CommunicationAnnouncement extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject($this->announcement->title)
+            ->subject($this->announcement->titre)
             ->greeting('Bonjour '.$notifiable->prenom.' '.$notifiable->nom.',')
-            ->line($this->announcement->message)
+            ->line($this->announcement->contenu)
             ->salutation('L’équipe eSchool');
     }
 }

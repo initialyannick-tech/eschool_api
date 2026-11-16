@@ -10,12 +10,12 @@ class ConversationMessage extends Model
 {
     protected $fillable = [
         'conversation_id',
-        'sender_id',
-        'body',
-        'attachment_path',
-        'attachment_name',
-        'attachment_mime',
-        'attachment_size',
+        'auteur_id',
+        'contenu',
+        'piece_jointe_chemin',
+        'piece_jointe_nom',
+        'piece_jointe_mime',
+        'piece_jointe_taille',
     ];
 
     public function conversation(): BelongsTo
@@ -25,6 +25,6 @@ class ConversationMessage extends Model
 
     public function sender(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo(User::class, 'auteur_id');
     }
 }

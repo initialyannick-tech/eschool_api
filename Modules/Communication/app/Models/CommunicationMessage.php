@@ -10,32 +10,32 @@ use Modules\Admin\Models\User;
 class CommunicationMessage extends Model
 {
     protected $fillable = [
-        'sender_id',
-        'title',
-        'message',
+        'auteur_id',
+        'titre',
+        'contenu',
         'audience',
-        'target_role_id',
-        'channels',
-        'recipient_count',
-        'published_at',
+        'role_cible_id',
+        'canaux',
+        'nombre_destinataires',
+        'date_publication',
     ];
 
     protected function casts(): array
     {
         return [
-            'channels' => 'array',
-            'recipient_count' => 'integer',
-            'published_at' => 'datetime',
+            'canaux' => 'array',
+            'nombre_destinataires' => 'integer',
+            'date_publication' => 'datetime',
         ];
     }
 
     public function sender(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo(User::class, 'auteur_id');
     }
 
     public function targetRole(): BelongsTo
     {
-        return $this->belongsTo(Role::class, 'target_role_id');
+        return $this->belongsTo(Role::class, 'role_cible_id');
     }
 }

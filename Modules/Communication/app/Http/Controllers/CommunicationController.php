@@ -30,17 +30,17 @@ class CommunicationController
 
         $messages = CommunicationMessage::query()
             ->with(['sender:id,nom,prenom', 'targetRole:id,libelle'])
-            ->whereNotNull('published_at')
+            ->whereNotNull('date_publication')
             ->when(! $canManage, function (Builder $query) use ($user): void {
                 $query->where(function (Builder $audience) use ($user): void {
                     $audience->where('audience', 'all')
                         ->orWhere(function (Builder $roleAudience) use ($user): void {
                             $roleAudience->where('audience', 'role')
-                                ->where('target_role_id', $user->role_id);
+                                ->where('role_cible_id', $user->role_id);
                         });
                 });
             })
-            ->latest('published_at')
+            ->latest('date_publication')
             ->paginate(15);
 
         return response()->json([
@@ -79,20 +79,20 @@ class CommunicationController
         $recipients = $this->announcementRecipients($data['audience'], $roleId);
         $announcement = DB::transaction(function () use ($data, $roleId, $recipients, $user): CommunicationMessage {
             $announcement = CommunicationMessage::create([
-                'sender_id' => $user->id,
-                'title' => $data['title'],
-                'message' => $data['message'],
+                'auteur_id' => $user->id,
+                'titre' => $data['title'],
+                'contenu' => $data['message'],
                 'audience' => $data['audience'],
-                'target_role_id' => $roleId,
-                'channels' => array_values(array_unique($data['channels'])),
-                'recipient_count' => $recipients->count(),
-                'published_at' => now(),
+                'role_cible_id' => $roleId,
+                'canaux' => array_values(array_unique($data['channels'])),
+                'nombre_destinataires' => $recipients->count(),
+                'date_publication' => now(),
             ]);
 
             DB::afterCommit(function () use ($recipients, $announcement): void {
                 Notification::send($recipients, new CommunicationAnnouncement(
                     $announcement->load('sender:id,nom,prenom'),
-                    $announcement->channels,
+                    $announcement->canaux,
                 ));
             });
 
@@ -115,13 +115,13 @@ class CommunicationController
         $announcement = CommunicationMessage::query()
             ->with(['sender:id,nom,prenom', 'targetRole:id,libelle'])
             ->whereKey($id)
-            ->whereNotNull('published_at')
+            ->whereNotNull('date_publication')
             ->when(! $canManage, function (Builder $query) use ($user): void {
                 $query->where(function (Builder $audience) use ($user): void {
                     $audience->where('audience', 'all')
                         ->orWhere(function (Builder $roleAudience) use ($user): void {
                             $roleAudience->where('audience', 'role')
-                                ->where('target_role_id', $user->role_id);
+                                ->where('role_cible_id', $user->role_id);
                         });
                 });
             })
@@ -139,7 +139,10 @@ class CommunicationController
             'message' => ['sometimes', 'required', 'string', 'max:10000'],
         ]);
         $announcement = CommunicationMessage::query()->findOrFail($id);
-        $announcement->update($data);
+        $announcement->update([
+            'titre' => $data['title'] ?? $announcement->titre,
+            'contenu' => $data['message'] ?? $announcement->contenu,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -232,7 +235,7 @@ class CommunicationController
         $user = $request->user();
 
         $conversations = $user->conversations()
-            ->wherePivotNull('archived_at')
+            ->wherePivotNull('archive_le')
             ->with('participants:id,nom,prenom,email')
             ->orderByDesc('conversation_participants.updated_at')
             ->get();
@@ -251,8 +254,8 @@ class CommunicationController
                     ]),
                     'last_message' => $lastMessage ? $this->conversationMessageData($lastMessage) : null,
                     'unread_count' => $conversation->messages()
-                        ->where('sender_id', '!=', $user->id)
-                        ->when($conversation->pivot->last_read_at, fn (Builder $query, $readAt) => $query->where('created_at', '>', $readAt))
+                        ->where('auteur_id', '!=', $user->id)
+                        ->when($conversation->pivot->derniere_lecture_le, fn (Builder $query, $readAt) => $query->where('created_at', '>', $readAt))
                         ->count(),
                 ];
             }),
@@ -295,7 +298,7 @@ class CommunicationController
         $conversation = $this->findParticipantConversation($user, $conversationId);
 
         $messages = $conversation->messages()->with('sender:id,nom,prenom')->oldest()->get();
-        $conversation->participants()->updateExistingPivot($user->id, ['last_read_at' => now()]);
+        $conversation->participants()->updateExistingPivot($user->id, ['derniere_lecture_le' => now()]);
 
         $user->notifications()
             ->where('type', InternalMessageReceived::class)
@@ -339,7 +342,7 @@ class CommunicationController
         $conversation = $this->findParticipantConversation($request->user(), $conversationId);
 
         $conversation->participants()->updateExistingPivot($request->user()->id, [
-            'archived_at' => $data['archived'] ? now() : null,
+            'archive_le' => $data['archived'] ? now() : null,
         ]);
 
         return response()->json(['success' => true, 'message' => 'Conversation mise à jour.']);
@@ -351,9 +354,9 @@ class CommunicationController
         abort_unless($this->hasPermission($user, 'message.consulter'), 403);
         $conversation = $this->findParticipantConversation($user, $conversationId);
         $message = $conversation->messages()->findOrFail($messageId);
-        abort_unless($message->attachment_path && Storage::disk('local')->exists($message->attachment_path), 404);
+        abort_unless($message->piece_jointe_chemin && Storage::disk('local')->exists($message->piece_jointe_chemin), 404);
 
-        return Storage::disk('local')->download($message->attachment_path, $message->attachment_name);
+        return Storage::disk('local')->download($message->piece_jointe_chemin, $message->piece_jointe_nom);
     }
 
     public function portal(Request $request): JsonResponse
@@ -418,19 +421,19 @@ class CommunicationController
     {
         return [
             'id' => $message->id,
-            'title' => $message->title,
-            'message' => $message->message,
+            'title' => $message->titre,
+            'message' => $message->contenu,
             'audience' => $message->audience,
-            'target_role_id' => $message->target_role_id,
+            'target_role_id' => $message->role_cible_id,
             'target_role' => $message->targetRole?->libelle,
-            'channels' => $message->channels,
-            'recipient_count' => $message->recipient_count,
+            'channels' => $message->canaux,
+            'recipient_count' => $message->nombre_destinataires,
             'sender' => $message->sender ? [
                 'id' => $message->sender->id,
                 'nom' => $message->sender->nom,
                 'prenom' => $message->sender->prenom,
             ] : null,
-            'published_at' => $message->published_at,
+            'published_at' => $message->date_publication,
         ];
     }
 
@@ -438,15 +441,15 @@ class CommunicationController
     {
         return CommunicationMessage::query()
             ->with(['sender:id,nom,prenom', 'targetRole:id,libelle'])
-            ->whereNotNull('published_at')
+            ->whereNotNull('date_publication')
             ->where(function (Builder $query) use ($user): void {
                 $query->where('audience', 'all')
                     ->orWhere(function (Builder $roleAudience) use ($user): void {
                         $roleAudience->where('audience', 'role')
-                            ->where('target_role_id', $user->role_id);
+                            ->where('role_cible_id', $user->role_id);
                     });
             })
-            ->latest('published_at')
+            ->latest('date_publication')
             ->limit(5)
             ->get()
             ->map(fn (CommunicationMessage $message): array => $this->announcementData($message))
@@ -488,7 +491,7 @@ class CommunicationController
 
         try {
             return DB::transaction(function () use ($sender, $recipient, $body, $request, $attachmentPath): array {
-                $conversation = Conversation::create(['created_by' => $sender->id]);
+                $conversation = Conversation::create(['cree_par_id' => $sender->id]);
                 $conversation->participants()->attach([$sender->id, $recipient->id]);
                 $message = $conversation->messages()->create(
                     $this->messageAttributes($sender, $body, $request, $attachmentPath),
@@ -517,8 +520,8 @@ class CommunicationController
                     $this->messageAttributes($sender, $request->input('body'), $request, $attachmentPath),
                 );
                 $conversation->participants()->updateExistingPivot($sender->id, [
-                    'archived_at' => null,
-                    'last_read_at' => now(),
+                    'archive_le' => null,
+                    'derniere_lecture_le' => now(),
                 ]);
 
                 return [$message->load('sender:id,nom,prenom')];
@@ -536,12 +539,12 @@ class CommunicationController
         $attachment = $request->file('attachment');
 
         return [
-            'sender_id' => $sender->id,
-            'body' => trim((string) $body) !== '' ? trim((string) $body) : null,
-            'attachment_path' => $attachmentPath,
-            'attachment_name' => $attachment?->getClientOriginalName(),
-            'attachment_mime' => $attachment?->getMimeType(),
-            'attachment_size' => $attachment?->getSize(),
+            'auteur_id' => $sender->id,
+            'contenu' => trim((string) $body) !== '' ? trim((string) $body) : null,
+            'piece_jointe_chemin' => $attachmentPath,
+            'piece_jointe_nom' => $attachment?->getClientOriginalName(),
+            'piece_jointe_mime' => $attachment?->getMimeType(),
+            'piece_jointe_taille' => $attachment?->getSize(),
         ];
     }
 
@@ -558,16 +561,16 @@ class CommunicationController
         return [
             'id' => $message->id,
             'conversation_id' => $message->conversation_id,
-            'sender_id' => $message->sender_id,
+            'sender_id' => $message->auteur_id,
             'sender' => $message->sender ? [
                 'id' => $message->sender->id,
                 'nom' => $message->sender->nom,
                 'prenom' => $message->sender->prenom,
             ] : null,
-            'body' => $message->body,
-            'attachment_name' => $message->attachment_name,
-            'attachment_size' => $message->attachment_size,
-            'attachment_url' => $message->attachment_path
+            'body' => $message->contenu,
+            'attachment_name' => $message->piece_jointe_nom,
+            'attachment_size' => $message->piece_jointe_taille,
+            'attachment_url' => $message->piece_jointe_chemin
                 ? route('api.communication.conversations.attachment', [$message->conversation_id, $message->id])
                 : null,
             'created_at' => $message->created_at,

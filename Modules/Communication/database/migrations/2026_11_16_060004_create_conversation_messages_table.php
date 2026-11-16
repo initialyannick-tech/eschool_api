@@ -15,12 +15,12 @@ return new class extends Migration
         Schema::create('conversation_messages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('sender_id')->constrained('users')->cascadeOnDelete();
-            $table->text('body')->nullable();
-            $table->string('attachment_path')->nullable();
-            $table->string('attachment_name')->nullable();
-            $table->string('attachment_mime', 150)->nullable();
-            $table->unsignedBigInteger('attachment_size')->nullable();
+            $table->foreignId('auteur_id')->constrained('users')->cascadeOnDelete();
+            $table->text('contenu')->nullable();
+            $table->string('piece_jointe_chemin')->nullable();
+            $table->string('piece_jointe_nom')->nullable();
+            $table->string('piece_jointe_mime', 150)->nullable();
+            $table->unsignedBigInteger('piece_jointe_taille')->nullable();
             $table->timestamps();
 
             $table->index(['conversation_id', 'created_at']);

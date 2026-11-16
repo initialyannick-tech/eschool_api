@@ -9,12 +9,12 @@ use Modules\Admin\Models\User;
 
 class Conversation extends Model
 {
-    protected $fillable = ['created_by'];
+    protected $fillable = ['cree_par_id'];
 
     public function participants(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'conversation_participants')
-            ->withPivot(['last_read_at', 'archived_at'])
+            ->withPivot(['derniere_lecture_le', 'archive_le'])
             ->withTimestamps();
     }
 

@@ -16,8 +16,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->timestamp('last_read_at')->nullable();
-            $table->timestamp('archived_at')->nullable();
+            $table->timestamp('derniere_lecture_le')->nullable();
+            $table->timestamp('archive_le')->nullable();
             $table->timestamps();
 
             $table->unique(['conversation_id', 'user_id']);

@@ -12,17 +12,17 @@ return new class extends Migration
         if (! Schema::hasTable('communication_messages')) {
             Schema::create('communication_messages', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('sender_id')->constrained('users')->cascadeOnDelete();
-                $table->string('title', 180);
-                $table->text('message');
+                $table->foreignId('auteur_id')->constrained('users')->cascadeOnDelete();
+                $table->string('titre', 180);
+                $table->text('contenu');
                 $table->string('audience', 20)->default('all');
-                $table->foreignId('target_role_id')->nullable()->constrained('roles')->nullOnDelete();
-                $table->json('channels');
-                $table->unsignedInteger('recipient_count')->default(0);
-                $table->timestamp('published_at')->nullable();
+                $table->foreignId('role_cible_id')->nullable()->constrained('roles')->nullOnDelete();
+                $table->json('canaux');
+                $table->unsignedInteger('nombre_destinataires')->default(0);
+                $table->timestamp('date_publication')->nullable();
                 $table->timestamps();
 
-                $table->index(['audience', 'target_role_id', 'published_at']);
+                $table->index(['audience', 'role_cible_id', 'date_publication']);
             });
 
             return;

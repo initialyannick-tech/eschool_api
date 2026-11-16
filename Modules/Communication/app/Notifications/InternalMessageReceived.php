@@ -27,7 +27,7 @@ class InternalMessageReceived extends Notification
             'conversation_id' => $this->message->conversation_id,
             'message_id' => $this->message->id,
             'title' => 'Nouveau message',
-            'message' => $this->message->body ?: 'Une pièce jointe vous a été envoyée.',
+            'message' => $this->message->contenu ?: 'Une pièce jointe vous a été envoyée.',
             'sender_name' => trim($this->message->sender->prenom.' '.$this->message->sender->nom),
         ];
     }
@@ -37,7 +37,7 @@ class InternalMessageReceived extends Notification
         return (new MailMessage)
             ->subject('Vous avez reçu un nouveau message sur eSchool')
             ->greeting('Bonjour '.$notifiable->prenom.' '.$notifiable->nom.',')
-            ->line($this->message->body ?: 'Une pièce jointe vous a été envoyée.')
+            ->line($this->message->contenu ?: 'Une pièce jointe vous a été envoyée.')
             ->salutation('L’équipe eSchool');
     }
 }
