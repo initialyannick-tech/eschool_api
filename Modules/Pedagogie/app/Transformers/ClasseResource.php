@@ -14,6 +14,7 @@ class  ClasseResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'annee_scolaire_id' => $this->annee_scolaire_id,
             'nom' => $this->nom,
             'capacite' => $this->capacite,
             'nombre_eleves' =>
