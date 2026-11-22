@@ -90,7 +90,7 @@ class User extends Authenticatable
     public function conversations(): BelongsToMany
     {
         return $this->belongsToMany(Conversation::class, 'conversation_participants')
-            ->withPivot(['last_read_at', 'archived_at'])
+            ->withPivot(['derniere_lecture_le', 'archive_le'])
             ->withTimestamps();
     }
 }

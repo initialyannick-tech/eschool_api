@@ -1,9 +1,11 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Modules\Admin\Models\Permission;
@@ -13,6 +15,8 @@ use Modules\Communication\Models\Conversation;
 use Modules\Communication\Models\ConversationMessage;
 use Modules\Communication\Notifications\CommunicationAnnouncement;
 use Modules\Communication\Notifications\InternalMessageReceived;
+use Modules\Pedagogie\Models\Eleve;
+use Modules\Pedagogie\Models\ParentModel;
 
 uses(RefreshDatabase::class);
 
@@ -81,9 +85,9 @@ it('sends and records an announcement for active users', function () {
         ->assertJsonPath('data.recipient_count', 2);
 
     $this->assertDatabaseHas('communication_messages', [
-        'title' => 'Réunion pédagogique',
-        'sender_id' => $sender->id,
-        'recipient_count' => 2,
+        'titre' => 'Réunion pédagogique',
+        'auteur_id' => $sender->id,
+        'nombre_destinataires' => 2,
     ]);
 
     Notification::assertSentTo(
@@ -227,10 +231,10 @@ it('creates a private conversation and notifies its recipient', function () {
         ->assertCreated()
         ->assertJsonPath('data.message.body', 'Bonjour, pouvez-vous me rappeler ?');
 
-    $this->assertDatabaseHas('conversations', ['created_by' => $sender->id]);
+    $this->assertDatabaseHas('conversations', ['cree_par_id' => $sender->id]);
     $this->assertDatabaseHas('conversation_messages', [
-        'sender_id' => $sender->id,
-        'body' => 'Bonjour, pouvez-vous me rappeler ?',
+        'auteur_id' => $sender->id,
+        'contenu' => 'Bonjour, pouvez-vous me rappeler ?',
     ]);
 
     Notification::assertSentTo(
@@ -238,6 +242,31 @@ it('creates a private conversation and notifies its recipient', function () {
         InternalMessageReceived::class,
         fn (InternalMessageReceived $notification, array $channels): bool => $channels === ['database'],
     );
+});
+
+it('prevents a user from creating a conversation with themselves', function () {
+    $permission = Permission::create([
+        'libelle' => 'Envoyer un message',
+        'code' => 'message.envoyer',
+    ]);
+    $role = Role::create(['libelle' => 'Enseignant']);
+    $role->permissions()->attach($permission->id);
+    $user = User::create([
+        'nom' => 'Diallo',
+        'prenom' => 'Mamadou',
+        'email' => 'mamadou.diallo@example.com',
+        'password' => 'secret',
+        'role_id' => $role->id,
+    ]);
+
+    $this->actingAs($user, 'sanctum')
+        ->postJson('/api/communication/conversations', [
+            'recipient_id' => $user->id,
+            'body' => 'Message à soi-même.',
+        ])
+        ->assertUnprocessable();
+
+    $this->assertDatabaseCount('conversations', 0);
 });
 
 it('hides a conversation from authenticated users who are not members', function () {
@@ -316,12 +345,12 @@ it('marks the conversation notification as read when the recipient opens the thr
         'password' => 'secret',
         'role_id' => $role->id,
     ]);
-    $conversation = Conversation::create(['created_by' => $sender->id]);
+    $conversation = Conversation::create(['cree_par_id' => $sender->id]);
     $conversation->participants()->attach([$sender->id, $recipient->id]);
     ConversationMessage::create([
         'conversation_id' => $conversation->id,
-        'sender_id' => $sender->id,
-        'body' => 'Bonjour.',
+        'auteur_id' => $sender->id,
+        'contenu' => 'Bonjour.',
     ]);
     $notification = $recipient->notifications()->create([
         'id' => (string) Str::uuid(),
@@ -367,7 +396,7 @@ it('lets a participant reply and archive only their own conversation', function 
         'password' => 'secret',
         'role_id' => $senderRole->id,
     ]);
-    $conversation = Conversation::create(['created_by' => $sender->id]);
+    $conversation = Conversation::create(['cree_par_id' => $sender->id]);
     $conversation->participants()->attach([$sender->id, $recipient->id]);
     Notification::fake();
 
@@ -380,8 +409,8 @@ it('lets a participant reply and archive only their own conversation', function 
 
     $this->assertDatabaseHas('conversation_messages', [
         'conversation_id' => $conversation->id,
-        'sender_id' => $sender->id,
-        'body' => 'Voici la réponse.',
+        'auteur_id' => $sender->id,
+        'contenu' => 'Voici la réponse.',
     ]);
     Notification::assertSentTo([$recipient], InternalMessageReceived::class);
 
@@ -392,9 +421,9 @@ it('lets a participant reply and archive only their own conversation', function 
     $this->assertDatabaseHas('conversation_participants', [
         'conversation_id' => $conversation->id,
         'user_id' => $recipient->id,
-        'archived_at' => null,
+        'archive_le' => null,
     ]);
-    expect($recipient->conversations()->wherePivotNull('archived_at')->count())->toBe(1);
+    expect($recipient->conversations()->wherePivotNull('archive_le')->count())->toBe(1);
 
     $this->actingAs($sender, 'sanctum')
         ->getJson('/api/communication/conversations')
@@ -452,7 +481,7 @@ it('stores attachments privately and restricts downloads to conversation members
         ->assertCreated();
     $messageId = $response->json('data.message.id');
     $conversationId = $response->json('data.conversation_id');
-    $attachmentPath = DB::table('conversation_messages')->where('id', $messageId)->value('attachment_path');
+    $attachmentPath = DB::table('conversation_messages')->where('id', $messageId)->value('piece_jointe_chemin');
 
     Storage::disk('local')->assertExists($attachmentPath);
 
@@ -464,4 +493,94 @@ it('stores attachments privately and restricts downloads to conversation members
     $this->actingAs($outsider, 'sanctum')
         ->get('/api/communication/conversations/'.$conversationId.'/messages/'.$messageId.'/attachment')
         ->assertNotFound();
+});
+
+it('shows a parent the announcements and all linked children in the portal', function () {
+    $role = Role::create(['libelle' => 'Parent']);
+    $parentUser = User::create([
+        'nom' => 'Mabika',
+        'prenom' => 'Aline',
+        'email' => 'aline.mabika@example.com',
+        'password' => 'secret',
+        'role_id' => $role->id,
+    ]);
+    $parent = ParentModel::create([
+        'nom' => 'Mabika',
+        'prenom' => 'Aline',
+        'telephone' => '01234567',
+        'email' => 'aline.mabika@example.com',
+        'user_id' => $parentUser->id,
+    ]);
+    $children = collect([
+        ['nom' => 'Mabika', 'prenom' => 'Nina'],
+        ['nom' => 'Mabika', 'prenom' => 'Noah'],
+    ])->map(fn (array $child): Eleve => Eleve::create([
+        ...$child,
+        'sexe' => 'feminin',
+        'date_naissance' => '2015-05-10',
+        'lieu_naissance' => 'Libreville',
+    ]));
+    $parent->eleves()->attach($children->mapWithKeys(fn (Eleve $child): array => [
+        $child->id => [
+            'relation' => 'Mère',
+            'responsable_principal' => true,
+            'responsable_financier' => false,
+        ],
+    ])->all());
+
+    $this->actingAs($parentUser, 'sanctum')
+        ->getJson('/api/communication/portal')
+        ->assertOk()
+        ->assertJsonPath('data.type', 'parent')
+        ->assertJsonCount(2, 'data.children')
+        ->assertJsonFragment(['prenom' => 'Nina'])
+        ->assertJsonFragment(['prenom' => 'Noah']);
+});
+
+it('renames legacy communication columns without losing their values', function () {
+    Schema::drop('communication_messages');
+    Schema::create('communication_messages', function (Blueprint $table) {
+        $table->id();
+        $table->unsignedBigInteger('sender_id');
+        $table->string('title', 180);
+        $table->text('message');
+        $table->string('audience', 20);
+        $table->unsignedBigInteger('target_role_id')->nullable();
+        $table->json('channels');
+        $table->unsignedInteger('recipient_count');
+        $table->timestamp('published_at')->nullable();
+        $table->unsignedBigInteger('role_id')->nullable();
+        $table->timestamp('sent_at')->nullable();
+        $table->timestamps();
+    });
+
+    DB::table('communication_messages')->insert([
+        'sender_id' => 12,
+        'title' => 'Réunion',
+        'message' => 'Réunion demain.',
+        'audience' => 'role',
+        'target_role_id' => null,
+        'channels' => json_encode(['database']),
+        'recipient_count' => 3,
+        'published_at' => null,
+        'role_id' => 4,
+        'sent_at' => '2026-11-16 08:00:00',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $migration = require base_path('Modules/Communication/database/migrations/2026_11_16_070000_localize_communication_columns.php');
+    $migration->up();
+
+    $this->assertDatabaseHas('communication_messages', [
+        'auteur_id' => 12,
+        'titre' => 'Réunion',
+        'contenu' => 'Réunion demain.',
+        'role_cible_id' => 4,
+        'nombre_destinataires' => 3,
+        'date_publication' => '2026-11-16 08:00:00',
+    ]);
+    expect(Schema::hasColumn('communication_messages', 'sender_id'))->toBeFalse();
+    expect(Schema::hasColumn('communication_messages', 'role_id'))->toBeFalse();
+    expect(Schema::hasColumn('communication_messages', 'sent_at'))->toBeFalse();
 });

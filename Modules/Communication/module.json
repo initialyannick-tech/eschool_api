@@ -1,0 +1,11 @@
+{
+    "name": "Communication",
+    "alias": "communication",
+    "description": "Communication eSchool",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Communication\\Providers\\CommunicationServiceProvider"
+    ],
+    "files": []
+}
