@@ -21,8 +21,7 @@ return new class extends Migration
                 $table->unsignedInteger('nombre_destinataires')->default(0);
                 $table->timestamp('date_publication')->nullable();
                 $table->timestamps();
-
-                $table->index(['audience', 'role_cible_id', 'date_publication']);
+                $table->index(['audience', 'role_cible_id', 'date_publication'],'comm_messages_audience_role_date_idx');
             });
 
             return;
